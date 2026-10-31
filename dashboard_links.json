@@ -1,0 +1,998 @@
+{
+  "title": "AI Manager Summary — Bot Dashboards",
+  "generated_at": "2026-11-01 03:35:55 HKT",
+  "base": "(local)",
+  "github_api_used": true,
+  "listening_ports": [
+    "0.0.0.0:8789",
+    "0.0.0.0:8774",
+    "0.0.0.0:8769",
+    "0.0.0.0:8771",
+    "0.0.0.0:8788",
+    "0.0.0.0:8773",
+    "0.0.0.0:8775",
+    "0.0.0.0:8787",
+    "0.0.0.0:8767",
+    "0.0.0.0:8772",
+    "0.0.0.0:8766",
+    "0.0.0.0:8764",
+    "0.0.0.0:8765",
+    "0.0.0.0:8768",
+    "0.0.0.0:8770"
+  ],
+  "bots": [
+    {
+      "id": "manager_hermes",
+      "name": "AI Manager Summary",
+      "dir": "Manager",
+      "dir_exists": true,
+      "local": [
+        {
+          "host": "127.0.0.1",
+          "port": 8764,
+          "path": "/",
+          "label": "static http.server (dashboard_index)",
+          "url": "http://127.0.0.1:8764/",
+          "lan_url": "http://m2-mac-mini:8764/",
+          "listening": true,
+          "http": "200",
+          "status": "up"
+        }
+      ],
+      "pages": [
+        {
+          "url": "https://algowise-ai.github.io/ai-manager-summary/",
+          "repo": "algowise-ai/ai-manager-summary",
+          "http": "200"
+        }
+      ],
+      "launchd": [
+        "com.algowise.manager.botstatus",
+        "com.algowise.manager.strategy-scoreboard",
+        "com.algowise.manager.dashboard-index",
+        "com.algowise.manager.dashboard-index-http",
+        "com.algowise.manager.dashboard-pages",
+        "com.algowise.manager.highlight-4h",
+        "com.algowise.manager.highlight-daily"
+      ],
+      "notes": "AI Manager Summary hub. Tailscale m2-mac-mini:8764 + Local :8764 + GitHub Pages. Hourly refresh/serve/pages; 4h+daily highlights.",
+      "local_uncertain": false,
+      "any_local_up": true,
+      "aspect": "General",
+      "last_seen": "2026-11-01 03:35:55 HKT"
+    },
+    {
+      "id": "tg_football_tips",
+      "name": "TG Football Tips",
+      "dir": "TG Football Tips",
+      "dir_exists": true,
+      "local": [
+        {
+          "host": "127.0.0.1",
+          "port": 8767,
+          "path": "/",
+          "label": "uvicorn dashboard",
+          "url": "http://127.0.0.1:8767/",
+          "lan_url": "http://m2-mac-mini:8767/",
+          "listening": true,
+          "http": "200",
+          "status": "up"
+        }
+      ],
+      "pages": [
+        {
+          "url": "https://algowise-ai.github.io/tg-football-tips/",
+          "repo": "algowise-ai/tg-football-tips",
+          "http": "200"
+        }
+      ],
+      "launchd": [
+        "com.tiptracker.dashboard",
+        "com.tiptracker.dashboard-pages"
+      ],
+      "notes": "Local KeepAlive. Pages hourly --push. Real-bets tab NOT on Pages.",
+      "local_uncertain": false,
+      "any_local_up": true,
+      "aspect": "Trading",
+      "last_seen": "2026-11-01 03:35:56 HKT"
+    },
+    {
+      "id": "tipsme_betting",
+      "name": "Tipsme Betting",
+      "dir": "Tipsme Betting",
+      "dir_exists": true,
+      "local": [
+        {
+          "host": "127.0.0.1",
+          "port": 8770,
+          "path": "/",
+          "label": "stdlib dashboard",
+          "url": "http://127.0.0.1:8770/",
+          "lan_url": "http://m2-mac-mini:8770/",
+          "listening": true,
+          "http": "200",
+          "status": "up"
+        }
+      ],
+      "pages": [],
+      "launchd": [
+        "com.algowise.tipsme.dashboard"
+      ],
+      "notes": "Local only. / serves cached overview HTML (<1s); backtest snap avoids 800MB scan.",
+      "local_uncertain": false,
+      "any_local_up": true,
+      "aspect": "Trading",
+      "last_seen": "2026-11-01 03:35:57 HKT"
+    },
+    {
+      "id": "bettingexpert",
+      "name": "BettingExpert",
+      "dir": "BettingExpert",
+      "dir_exists": true,
+      "local": [
+        {
+          "host": "127.0.0.1",
+          "port": 8771,
+          "path": "/",
+          "label": "stdlib dashboard",
+          "url": "http://127.0.0.1:8771/",
+          "lan_url": "http://m2-mac-mini:8771/",
+          "listening": true,
+          "http": "200",
+          "status": "up"
+        }
+      ],
+      "pages": [],
+      "launchd": [
+        "com.algowise.bettingexpert.dashboard"
+      ],
+      "notes": "Local only. Port table: Tipsme 8770 / BE 8771 / Blogabet 8772.",
+      "local_uncertain": false,
+      "any_local_up": true,
+      "aspect": "Trading",
+      "last_seen": "2026-11-01 03:35:58 HKT"
+    },
+    {
+      "id": "blogabet",
+      "name": "Blogabet",
+      "dir": "Blogabet",
+      "dir_exists": true,
+      "local": [
+        {
+          "host": "127.0.0.1",
+          "port": 8772,
+          "path": "/",
+          "label": "stdlib dashboard",
+          "url": "http://127.0.0.1:8772/",
+          "lan_url": "http://m2-mac-mini:8772/",
+          "listening": true,
+          "http": "200",
+          "status": "up"
+        }
+      ],
+      "pages": [],
+      "launchd": [
+        "com.algowise.blogabet.dashboard"
+      ],
+      "notes": "Local dashboard bootstrapped; collector still gated per README.",
+      "local_uncertain": false,
+      "any_local_up": true,
+      "aspect": "Trading",
+      "last_seen": "2026-11-01 03:35:58 HKT"
+    },
+    {
+      "id": "tg_trading",
+      "name": "TG Trading (FX/XAU)",
+      "dir": "TG Trading",
+      "dir_exists": true,
+      "local": [
+        {
+          "host": "127.0.0.1",
+          "port": 8766,
+          "path": "/",
+          "label": "uvicorn fxxau",
+          "url": "http://127.0.0.1:8766/",
+          "lan_url": "http://m2-mac-mini:8766/",
+          "listening": true,
+          "http": "200",
+          "status": "up"
+        }
+      ],
+      "pages": [
+        {
+          "url": "https://algowise-ai.github.io/tg-trading-dashboard/",
+          "repo": "algowise-ai/tg-trading-dashboard",
+          "http": "200"
+        }
+      ],
+      "launchd": [
+        "com.algowise.fxxau.dashboard",
+        "com.algowise.fxxau.dashboard-pages"
+      ],
+      "notes": "Local KeepAlive :8766 + GitHub Pages every 10 min. Paper metrics only.",
+      "local_uncertain": false,
+      "any_local_up": true,
+      "aspect": "Trading",
+      "last_seen": "2026-11-01 03:36:00 HKT"
+    },
+    {
+      "id": "polymarket",
+      "name": "Polymarket V1",
+      "dir": "Polymarket",
+      "dir_exists": true,
+      "local": [
+        {
+          "host": "127.0.0.1",
+          "port": 8765,
+          "path": "/dashboard.html",
+          "label": "static http.server",
+          "url": "http://127.0.0.1:8765/dashboard.html",
+          "lan_url": "http://m2-mac-mini:8765/dashboard.html",
+          "listening": true,
+          "http": "200",
+          "status": "up"
+        }
+      ],
+      "pages": [
+        {
+          "url": "https://algowise-ai.github.io/polymarket-paper-dashboard/",
+          "repo": "algowise-ai/polymarket-paper-dashboard",
+          "http": "200"
+        }
+      ],
+      "launchd": [
+        "com.algowise.polymarket.dashboard",
+        "com.algowise.polymarket.dashboard-refresh",
+        "com.algowise.polymarket.dashboard-pages"
+      ],
+      "notes": "V1 main Live paper books (dual-wing moved to Polymarket Dual Wings). Local serves out/. Pages scrubbed static. Refresh every 60s.",
+      "local_uncertain": false,
+      "any_local_up": true,
+      "aspect": "Trading",
+      "last_seen": "2026-11-01 03:36:01 HKT"
+    },
+    {
+      "id": "polymarket_v2",
+      "name": "Polymarket Crypto Up / Down",
+      "dir": "Polymarket",
+      "dir_exists": true,
+      "local": [
+        {
+          "host": "127.0.0.1",
+          "port": 8765,
+          "path": "/dashboard_v2.html",
+          "label": "static http.server (V2 crypto limit cells)",
+          "url": "http://127.0.0.1:8765/dashboard_v2.html",
+          "lan_url": "http://m2-mac-mini:8765/dashboard_v2.html",
+          "listening": true,
+          "http": "200",
+          "status": "up"
+        },
+        {
+          "host": "127.0.0.1",
+          "port": 8765,
+          "path": "/dashboard_v2_heatmaps.html",
+          "label": "Crypto Heatmaps (interactive)",
+          "url": "http://127.0.0.1:8765/dashboard_v2_heatmaps.html",
+          "lan_url": "http://m2-mac-mini:8765/dashboard_v2_heatmaps.html",
+          "listening": true,
+          "http": "200",
+          "status": "up"
+        }
+      ],
+      "pages": [
+        {
+          "url": "https://algowise-ai.github.io/polymarket-paper-dashboard/dashboard_v2.html",
+          "repo": "algowise-ai/polymarket-paper-dashboard",
+          "http": "200"
+        },
+        {
+          "url": "https://algowise-ai.github.io/polymarket-paper-dashboard/dashboard_v2_heatmaps.html",
+          "repo": "algowise-ai/polymarket-paper-dashboard",
+          "http": "200"
+        }
+      ],
+      "launchd": [
+        "com.algowise.polymarket.dashboard",
+        "com.algowise.polymarket.dashboard-refresh",
+        "com.algowise.polymarket.dashboard-pages"
+      ],
+      "notes": "V2 crypto resting-limit cells (coin×window×price @ 80/83/85/88/90/93/95, both sides; cancel opposite on fill). Heatmaps sub-page: interactive Day/Cum grids (not PNG-primary). Finance moved to Polymarket Finance. Same :8765 out/ as V1.",
+      "local_uncertain": false,
+      "any_local_up": true,
+      "aspect": "Trading",
+      "last_seen": "2026-11-01 03:36:04 HKT"
+    },
+    {
+      "id": "polymarket_finance",
+      "name": "Polymarket Finance",
+      "dir": "Polymarket",
+      "dir_exists": true,
+      "local": [
+        {
+          "host": "127.0.0.1",
+          "port": 8765,
+          "path": "/dashboard_finance.html",
+          "label": "static http.server (Finance daily cells)",
+          "url": "http://127.0.0.1:8765/dashboard_finance.html",
+          "lan_url": "http://m2-mac-mini:8765/dashboard_finance.html",
+          "listening": true,
+          "http": "200",
+          "status": "up"
+        }
+      ],
+      "pages": [
+        {
+          "url": "https://algowise-ai.github.io/polymarket-paper-dashboard/dashboard_finance.html",
+          "repo": "algowise-ai/polymarket-paper-dashboard",
+          "http": "200"
+        }
+      ],
+      "launchd": [
+        "com.algowise.polymarket.dashboard",
+        "com.algowise.polymarket.dashboard-refresh",
+        "com.algowise.polymarket.dashboard-pages"
+      ],
+      "notes": "Finance Daily resting-limit cells (item×price @ 80/83/85/88/90/93/95, both sides; cancel opposite on fill). Same :8765 out/ as V1/V2.",
+      "local_uncertain": false,
+      "any_local_up": true,
+      "aspect": "Trading",
+      "last_seen": "2026-11-01 03:36:05 HKT"
+    },
+    {
+      "id": "polymarket_wallet",
+      "name": "Polymarket Wallet",
+      "dir": "Polymarket",
+      "dir_exists": true,
+      "local": [
+        {
+          "host": "127.0.0.1",
+          "port": 8769,
+          "path": "/dashboard_wallet.html",
+          "label": "static http.server (Wallet $100/$1)",
+          "url": "http://127.0.0.1:8769/dashboard_wallet.html",
+          "lan_url": "http://m2-mac-mini:8769/dashboard_wallet.html",
+          "listening": true,
+          "http": "200",
+          "status": "up"
+        },
+        {
+          "host": "127.0.0.1",
+          "port": 8765,
+          "path": "/dashboard_wallet.html",
+          "label": "also on V1 out/ :8765",
+          "url": "http://127.0.0.1:8765/dashboard_wallet.html",
+          "lan_url": "http://m2-mac-mini:8765/dashboard_wallet.html",
+          "listening": true,
+          "http": "200",
+          "status": "up"
+        }
+      ],
+      "pages": [
+        {
+          "url": "https://algowise-ai.github.io/polymarket-paper-dashboard/dashboard_wallet.html",
+          "repo": "algowise-ai/polymarket-paper-dashboard",
+          "http": "200"
+        }
+      ],
+      "launchd": [
+        "com.algowise.polymarket.wallet-dashboard",
+        "com.algowise.polymarket.dashboard-refresh",
+        "com.algowise.polymarket.dashboard-pages"
+      ],
+      "notes": "Phase-1 PAPER small wallet: 6 accounts @ US$100 bankroll / US$1 stake (3 V1 clones + BNB/SOL/ETH 15m 83c). Separate ledgers. No 9395. MagicDNS :8769 + GitHub Pages.",
+      "local_uncertain": false,
+      "any_local_up": true,
+      "aspect": "Trading",
+      "last_seen": "2026-11-01 03:36:06 HKT"
+    },
+    {
+      "id": "polymarket_dual_wings",
+      "name": "Polymarket Dual Wings",
+      "dir": "Polymarket",
+      "dir_exists": true,
+      "local": [
+        {
+          "host": "127.0.0.1",
+          "port": 8774,
+          "path": "/dashboard_dual_wings.html",
+          "label": "static http.server (Dual Wings)",
+          "url": "http://127.0.0.1:8774/dashboard_dual_wings.html",
+          "lan_url": "http://m2-mac-mini:8774/dashboard_dual_wings.html",
+          "listening": true,
+          "http": "200",
+          "status": "up"
+        },
+        {
+          "host": "127.0.0.1",
+          "port": 8765,
+          "path": "/dashboard_dual_wings.html",
+          "label": "also on V1 out/ :8765",
+          "url": "http://127.0.0.1:8765/dashboard_dual_wings.html",
+          "lan_url": "http://m2-mac-mini:8765/dashboard_dual_wings.html",
+          "listening": true,
+          "http": "200",
+          "status": "up"
+        }
+      ],
+      "pages": [
+        {
+          "url": "https://algowise-ai.github.io/polymarket-paper-dashboard/dashboard_dual_wings.html",
+          "repo": "algowise-ai/polymarket-paper-dashboard",
+          "http": "200"
+        }
+      ],
+      "launchd": [
+        "com.algowise.polymarket.dual-wings-dashboard",
+        "com.algowise.polymarket.dashboard-refresh",
+        "com.algowise.polymarket.dashboard-pages"
+      ],
+      "notes": "Dual-wing totals PAPER: 13 forward (Over@low+Under@high) + 13 Rev. Split from V1. MagicDNS :8774 + same out/ as :8765. GitHub Pages path when published.",
+      "local_uncertain": false,
+      "any_local_up": true,
+      "aspect": "Trading",
+      "last_seen": "2026-11-01 03:36:07 HKT"
+    },
+    {
+      "id": "darwinex_zero",
+      "name": "Darwinex Signals (Zero)",
+      "dir": "Darwinex Signals",
+      "dir_exists": true,
+      "local": [
+        {
+          "host": "127.0.0.1",
+          "port": 8787,
+          "path": "/",
+          "label": "uvicorn app.main",
+          "url": "http://127.0.0.1:8787/",
+          "lan_url": "http://m2-mac-mini:8787/",
+          "listening": true,
+          "http": "200",
+          "status": "up"
+        }
+      ],
+      "pages": [],
+      "launchd": [
+        "com.algowise.darwinex.dashboard"
+      ],
+      "notes": "Local Zero dashboard. Separate from Gold sleeve.",
+      "local_uncertain": false,
+      "any_local_up": true,
+      "aspect": "Trading",
+      "last_seen": "2026-11-01 03:36:07 HKT"
+    },
+    {
+      "id": "darwinex_gold",
+      "name": "Darwinex / Darwinai Gold",
+      "dir": "Darwinex Signals",
+      "dir_exists": true,
+      "local": [
+        {
+          "host": "127.0.0.1",
+          "port": 8788,
+          "path": "/",
+          "label": "uvicorn app_gold.main",
+          "url": "http://127.0.0.1:8788/",
+          "lan_url": "http://m2-mac-mini:8788/",
+          "listening": true,
+          "http": "200",
+          "status": "up"
+        }
+      ],
+      "pages": [
+        {
+          "url": "https://algowise-ai.github.io/darwinex-gold-paper-dashboard/",
+          "repo": "algowise-ai/darwinex-gold-paper-dashboard",
+          "http": "200"
+        }
+      ],
+      "launchd": [
+        "com.algowise.darwinex.gold-dashboard",
+        "com.algowise.darwinex.gold-dashboard-pages"
+      ],
+      "notes": "Owns 8788. Myfxbot moved to :8789.",
+      "local_uncertain": false,
+      "any_local_up": true,
+      "aspect": "Trading",
+      "last_seen": "2026-11-01 03:36:08 HKT"
+    },
+    {
+      "id": "crypto_funding",
+      "name": "Crypto Funding",
+      "dir": "Crypto Funding",
+      "dir_exists": true,
+      "local": [],
+      "pages": [],
+      "launchd": [],
+      "notes": "No web dashboard. Strategy jobs + summary MD/CSV only.",
+      "local_uncertain": false,
+      "any_local_up": false,
+      "aspect": "Trading",
+      "last_seen": "2026-11-01 03:36:08 HKT"
+    },
+    {
+      "id": "trading_view",
+      "name": "Trading View",
+      "dir": "Trading View",
+      "dir_exists": true,
+      "local": [
+        {
+          "host": "127.0.0.1",
+          "port": 8768,
+          "path": "/dashboard.html",
+          "label": "static http.server",
+          "url": "http://127.0.0.1:8768/dashboard.html",
+          "lan_url": "http://m2-mac-mini:8768/dashboard.html",
+          "listening": true,
+          "http": "200",
+          "status": "up"
+        }
+      ],
+      "pages": [
+        {
+          "url": "https://algowise-ai.github.io/algowise-trading-view-dashboard/",
+          "repo": "algowise-ai/algowise-trading-view-dashboard",
+          "http": "200"
+        }
+      ],
+      "launchd": [
+        "com.algowise.trading-view.dashboard-local",
+        "com.algowise.trading-view.dashboard",
+        "com.algowise.trading-view.dashboard-pages"
+      ],
+      "notes": "Paper metrics only on Pages.",
+      "local_uncertain": false,
+      "any_local_up": true,
+      "aspect": "Trading",
+      "last_seen": "2026-11-01 03:36:08 HKT"
+    },
+    {
+      "id": "horse_racing",
+      "name": "Horse Racing Research (HKJC)",
+      "dir": "Horse Racing Research",
+      "dir_exists": true,
+      "local": [],
+      "pages": [],
+      "launchd": [],
+      "notes": "Pipeline / research only. No dedicated dashboard (PM HKJC paper lives under Polymarket).",
+      "local_uncertain": false,
+      "any_local_up": false,
+      "aspect": "Trading",
+      "last_seen": "2026-11-01 03:36:08 HKT"
+    },
+    {
+      "id": "options_theta",
+      "name": "Options Theta",
+      "dir": "Options Theta",
+      "dir_exists": true,
+      "local": [],
+      "pages": [],
+      "launchd": [],
+      "notes": "Pipeline only. LaunchAgents retired/paused in backups.",
+      "local_uncertain": false,
+      "any_local_up": false,
+      "aspect": "Trading",
+      "last_seen": "2026-11-01 03:36:08 HKT"
+    },
+    {
+      "id": "carousell",
+      "name": "Carousell Tracker",
+      "dir": "Carousell Tracker",
+      "dir_exists": true,
+      "local": [],
+      "pages": [],
+      "launchd": [
+        "com.algowise.carousell-tracker"
+      ],
+      "notes": "Collector/scanner; no web UI.",
+      "local_uncertain": false,
+      "any_local_up": false,
+      "aspect": "Personal +",
+      "last_seen": "2026-11-01 03:36:08 HKT"
+    },
+    {
+      "id": "baby_stuff",
+      "name": "Baby Stuff",
+      "dir": "Baby Stuff",
+      "dir_exists": true,
+      "local": [
+        {
+          "host": "127.0.0.1",
+          "port": 8891,
+          "path": "/",
+          "label": "static http.server",
+          "url": "http://127.0.0.1:8891/",
+          "lan_url": "http://m2-mac-mini:8891/",
+          "listening": true,
+          "http": "200",
+          "status": "up"
+        }
+      ],
+      "pages": [
+        {
+          "url": "https://algowise-ai.github.io/baby-stuff-summary/",
+          "repo": "algowise-ai/baby-stuff-summary",
+          "http": "200"
+        }
+      ],
+      "launchd": [
+        "com.algowise.baby-stuff.digest",
+        "com.algowise.baby-stuff.dashboard"
+      ],
+      "notes": "Personal +ve school/budget summary. Local :8891 ungated; GitHub Pages no password.",
+      "local_uncertain": false,
+      "any_local_up": true,
+      "aspect": "Personal +",
+      "last_seen": "2026-11-01 03:36:09 HKT"
+    },
+    {
+      "id": "mt4_monitor",
+      "name": "MT4 Monitor",
+      "dir": "MT4 Monitor",
+      "dir_exists": true,
+      "local": [],
+      "pages": [],
+      "launchd": [
+        "com.algowise.mt4.monitor"
+      ],
+      "notes": "Read-only drop-folder monitor → out/*.md/json. No HTTP UI.",
+      "local_uncertain": false,
+      "any_local_up": false,
+      "aspect": "Trading",
+      "last_seen": "2026-11-01 03:36:09 HKT"
+    },
+    {
+      "id": "myfxbot",
+      "name": "Myfxbot Dashboard",
+      "dir": "myfxbot-dashboard",
+      "dir_exists": true,
+      "local": [
+        {
+          "host": "127.0.0.1",
+          "port": 8789,
+          "path": "/",
+          "label": "uvicorn myfxbot.web",
+          "url": "http://127.0.0.1:8789/",
+          "lan_url": "http://m2-mac-mini:8789/",
+          "listening": true,
+          "http": "root=err;health=200",
+          "status": "up"
+        }
+      ],
+      "pages": [],
+      "launchd": [
+        "com.algowise.myfxbot.dashboard"
+      ],
+      "notes": "Local uvicorn :8789 (Gold keeps :8788). launchd com.algowise.myfxbot.dashboard.",
+      "local_uncertain": false,
+      "any_local_up": true,
+      "aspect": "Trading",
+      "last_seen": "2026-11-01 03:36:13 HKT"
+    },
+    {
+      "id": "axi_select",
+      "name": "Axi Select",
+      "dir": "Axi Select",
+      "dir_exists": true,
+      "local": [
+        {
+          "host": "127.0.0.1",
+          "port": 8773,
+          "path": "/",
+          "label": "static http.server (Phase 1)",
+          "url": "http://127.0.0.1:8773/",
+          "lan_url": "http://m2-mac-mini:8773/",
+          "listening": true,
+          "http": "200",
+          "status": "up"
+        }
+      ],
+      "pages": [],
+      "launchd": [
+        "com.algowise.axi-select.dashboard"
+      ],
+      "notes": "Year-goal #22 collecting. MagicDNS m2-mac-mini:8773 + Local :8773. Phase 1 paper/monitor; MT4/MT5 EA deferred to Windows mini.",
+      "local_uncertain": false,
+      "any_local_up": true,
+      "aspect": "Trading",
+      "last_seen": "2026-11-01 03:36:13 HKT"
+    },
+    {
+      "id": "wsd-me-career",
+      "name": "WSD ME Career",
+      "dir": "WSD ME Career",
+      "dir_exists": true,
+      "local": [
+        {
+          "host": "127.0.0.1",
+          "port": 8899,
+          "path": "/",
+          "label": "static http.server (local ungated)",
+          "url": "http://127.0.0.1:8899/",
+          "lan_url": "http://m2-mac-mini:8899/",
+          "listening": true,
+          "http": "200",
+          "status": "up"
+        }
+      ],
+      "pages": [
+        {
+          "url": "https://cap-worship-amenities-webshots.trycloudflare.com/",
+          "repo": "cloudflare-tunnel-temp",
+          "http": "err"
+        }
+      ],
+      "launchd": [],
+      "notes": "Personal ME salary estimator. Local :8899 ungated; public Cloudflare tunnel password 8899 (temp; M2/tunnel down = offline). Prefer GitHub Pages later for stable URL.",
+      "local_uncertain": false,
+      "any_local_up": true,
+      "aspect": "Work",
+      "last_seen": "2026-11-01 03:36:13 HKT"
+    },
+    {
+      "id": "property",
+      "name": "Property",
+      "dir": "Property",
+      "dir_exists": true,
+      "local": [
+        {
+          "host": "127.0.0.1",
+          "port": 8892,
+          "path": "/",
+          "label": "mortgage calculator (local ungated)",
+          "url": "http://127.0.0.1:8892/",
+          "lan_url": "http://m2-mac-mini:8892/",
+          "listening": true,
+          "http": "200",
+          "status": "up"
+        }
+      ],
+      "pages": [
+        {
+          "url": "https://accountability-tyler-edwards-eyed.trycloudflare.com/",
+          "repo": "cloudflare-tunnel-temp",
+          "http": "err"
+        }
+      ],
+      "launchd": [
+        "com.algowise.property.digest"
+      ],
+      "notes": "Mortgage calc + estate explore + buy/rent HK/ML + GBA retirement. Local :8892 ungated; public trycloudflare NO password (ephemeral).",
+      "local_uncertain": false,
+      "any_local_up": true,
+      "aspect": "Personal +",
+      "last_seen": "2026-11-01 03:36:13 HKT"
+    },
+    {
+      "id": "strategies",
+      "name": "Strategies (pool)",
+      "dir": "Strategies",
+      "dir_exists": true,
+      "local": [],
+      "pages": [],
+      "launchd": [],
+      "notes": "us-index-meanrev / gold-fx-trend / crypto_funding_arb / hkjc-racing / etc. No shared web UI.",
+      "local_uncertain": false,
+      "any_local_up": false,
+      "aspect": "Trading",
+      "last_seen": "2026-11-01 03:36:13 HKT"
+    },
+    {
+      "id": "shared",
+      "name": "Shared (token_gate)",
+      "dir": "Shared",
+      "dir_exists": true,
+      "local": [],
+      "pages": [],
+      "launchd": [],
+      "notes": "Libraries only (token_gate, keep-awake). Not a bot dashboard.",
+      "local_uncertain": false,
+      "any_local_up": false,
+      "aspect": "General",
+      "last_seen": "2026-11-01 03:36:13 HKT"
+    }
+  ],
+  "shares": [
+    {
+      "item": "AI Manager Summary Pages",
+      "repo_or_md": "algowise-ai/ai-manager-summary",
+      "shared_with": "public (anyone on the internet)",
+      "how": "GitHub Pages public",
+      "link": "https://algowise-ai.github.io/ai-manager-summary/",
+      "uncertain": false,
+      "notes": "Static scrubbed paper dashboard; no secrets."
+    },
+    {
+      "item": "TG Football Tips Pages",
+      "repo_or_md": "algowise-ai/tg-football-tips",
+      "shared_with": "public (anyone on the internet)",
+      "how": "GitHub Pages public",
+      "link": "https://algowise-ai.github.io/tg-football-tips/",
+      "uncertain": false,
+      "notes": "Static scrubbed paper dashboard; no secrets."
+    },
+    {
+      "item": "TG Trading Pages",
+      "repo_or_md": "algowise-ai/tg-trading-dashboard",
+      "shared_with": "public (anyone on the internet)",
+      "how": "GitHub Pages public",
+      "link": "https://algowise-ai.github.io/tg-trading-dashboard/",
+      "uncertain": false,
+      "notes": "Static scrubbed paper dashboard; no secrets."
+    },
+    {
+      "item": "Polymarket V1 paper Pages",
+      "repo_or_md": "algowise-ai/polymarket-paper-dashboard",
+      "shared_with": "public (anyone on the internet)",
+      "how": "GitHub Pages public",
+      "link": "https://algowise-ai.github.io/polymarket-paper-dashboard/",
+      "uncertain": false,
+      "notes": "Static scrubbed paper dashboard; no secrets."
+    },
+    {
+      "item": "Polymarket Crypto Up / Down paper Pages",
+      "repo_or_md": "algowise-ai/polymarket-paper-dashboard",
+      "shared_with": "public (anyone on the internet)",
+      "how": "GitHub Pages public",
+      "link": "https://algowise-ai.github.io/polymarket-paper-dashboard/dashboard_v2.html",
+      "uncertain": false,
+      "notes": "Static scrubbed paper dashboard; no secrets."
+    },
+    {
+      "item": "Polymarket Finance paper Pages",
+      "repo_or_md": "algowise-ai/polymarket-paper-dashboard",
+      "shared_with": "public (anyone on the internet)",
+      "how": "GitHub Pages public",
+      "link": "https://algowise-ai.github.io/polymarket-paper-dashboard/dashboard_finance.html",
+      "uncertain": false,
+      "notes": "Static scrubbed paper dashboard; no secrets."
+    },
+    {
+      "item": "Polymarket Wallet paper Pages",
+      "repo_or_md": "algowise-ai/polymarket-paper-dashboard",
+      "shared_with": "public (anyone on the internet)",
+      "how": "GitHub Pages public",
+      "link": "https://algowise-ai.github.io/polymarket-paper-dashboard/dashboard_wallet.html",
+      "uncertain": false,
+      "notes": "Static scrubbed paper dashboard; no secrets."
+    },
+    {
+      "item": "Polymarket Dual Wings paper Pages",
+      "repo_or_md": "algowise-ai/polymarket-paper-dashboard",
+      "shared_with": "public (anyone on the internet)",
+      "how": "GitHub Pages public",
+      "link": "https://algowise-ai.github.io/polymarket-paper-dashboard/dashboard_dual_wings.html",
+      "uncertain": false,
+      "notes": "Static scrubbed paper dashboard; no secrets."
+    },
+    {
+      "item": "Darwinex Gold Pages",
+      "repo_or_md": "algowise-ai/darwinex-gold-paper-dashboard",
+      "shared_with": "public (anyone on the internet)",
+      "how": "GitHub Pages public",
+      "link": "https://algowise-ai.github.io/darwinex-gold-paper-dashboard/",
+      "uncertain": false,
+      "notes": "Static scrubbed paper dashboard; no secrets."
+    },
+    {
+      "item": "Trading View Pages",
+      "repo_or_md": "algowise-ai/algowise-trading-view-dashboard",
+      "shared_with": "public (anyone on the internet)",
+      "how": "GitHub Pages public",
+      "link": "https://algowise-ai.github.io/algowise-trading-view-dashboard/",
+      "uncertain": false,
+      "notes": "Static scrubbed paper dashboard; no secrets."
+    },
+    {
+      "item": "Baby Stuff Pages",
+      "repo_or_md": "algowise-ai/baby-stuff-summary",
+      "shared_with": "public (anyone on the internet)",
+      "how": "GitHub Pages public",
+      "link": "https://algowise-ai.github.io/baby-stuff-summary/",
+      "uncertain": false,
+      "notes": "Static scrubbed paper dashboard; no secrets."
+    },
+    {
+      "item": "WSD ME Career (Cloudflare tunnel)",
+      "repo_or_md": "cloudflare-tunnel-temp",
+      "shared_with": "public (anyone on the internet; password gate)",
+      "how": "Cloudflare quick tunnel (temporary)",
+      "link": "https://cap-worship-amenities-webshots.trycloudflare.com/",
+      "uncertain": true,
+      "notes": "Password 8899. Temp trycloudflare URL; dies when M2/tunnel stops. Local remains http://127.0.0.1:8899/ ungated."
+    },
+    {
+      "item": "Polymarket strategy keep-record (MD)",
+      "repo_or_md": "algowise-ai/polymarket-strategy-notes",
+      "shared_with": "(see collaborators)",
+      "how": "GitHub public repo",
+      "link": "https://github.com/algowise-ai/polymarket-strategy-notes",
+      "uncertain": false,
+      "notes": "REGISTRY.md + books/ weekly/. Not a live dashboard."
+    },
+    {
+      "item": "BETTING_HANDOFF.md",
+      "repo_or_md": "TG Football Tips/handoff/BETTING_HANDOFF.md",
+      "shared_with": "TG Betting Tips bot / internal handoff",
+      "how": "Bot / file handoff (local MD)",
+      "link": "file://(local)/TG Football Tips/handoff/BETTING_HANDOFF.md",
+      "uncertain": false,
+      "notes": "Mentions planned tips.algowise.co (Firebase) — not live."
+    },
+    {
+      "item": "tips.algowise.co (planned)",
+      "repo_or_md": "TG Football Tips/handoff/BETTING_HANDOFF.md",
+      "shared_with": "planned public DNS",
+      "how": "Firebase Hosting (planned, not deployed)",
+      "link": "https://tips.algowise.co/",
+      "uncertain": true,
+      "notes": "Documented 2026-09-22 handoff; DNS/Firebase pending. UNCERTAIN / not verified live."
+    },
+    {
+      "item": "GitHub collab:polymarket-paper-dashboard",
+      "repo_or_md": "algowise-ai/polymarket-paper-dashboard",
+      "shared_with": "emillaii",
+      "how": "GitHub collab (write)",
+      "link": "https://github.com/algowise-ai/polymarket-paper-dashboard",
+      "uncertain": false,
+      "notes": "login=emillaii role=write"
+    },
+    {
+      "item": "GitHub collab:polymarket-strategy-notes",
+      "repo_or_md": "algowise-ai/polymarket-strategy-notes",
+      "shared_with": "emillaii",
+      "how": "GitHub collab (write)",
+      "link": "https://github.com/algowise-ai/polymarket-strategy-notes",
+      "uncertain": false,
+      "notes": "login=emillaii role=write"
+    },
+    {
+      "item": "GitHub collab:tg-football-tips",
+      "repo_or_md": "algowise-ai/tg-football-tips",
+      "shared_with": "emillaii",
+      "how": "GitHub collab (write)",
+      "link": "https://github.com/algowise-ai/tg-football-tips",
+      "uncertain": false,
+      "notes": "login=emillaii role=write"
+    },
+    {
+      "item": "GitHub collab:darwinex-gold-paper-dashboard",
+      "repo_or_md": "algowise-ai/darwinex-gold-paper-dashboard",
+      "shared_with": "algowise-ai only (no external collaborators)",
+      "how": "GitHub collab",
+      "link": "https://github.com/algowise-ai/darwinex-gold-paper-dashboard",
+      "uncertain": false,
+      "notes": "Repo is public → world-readable; no write collabs besides owner."
+    },
+    {
+      "item": "GitHub collab:algowise-trading-view-dashboard",
+      "repo_or_md": "algowise-ai/algowise-trading-view-dashboard",
+      "shared_with": "algowise-ai only (no external collaborators)",
+      "how": "GitHub collab",
+      "link": "https://github.com/algowise-ai/algowise-trading-view-dashboard",
+      "uncertain": false,
+      "notes": "Repo is public → world-readable; no write collabs besides owner."
+    },
+    {
+      "item": "Google Drive / Bot template / Grok Bot share links",
+      "repo_or_md": "(searched under (local))",
+      "shared_with": "—",
+      "how": "Drive / Bot share",
+      "link": "",
+      "uncertain": true,
+      "notes": "No SHARE.md, Drive URLs, or Grok Bot share-link registry found in active trees (excluding _backup/.venv). Add rows here when shares are created."
+    }
+  ],
+  "counts": {
+    "bots": 26,
+    "bots_with_local": 19,
+    "bots_local_up": 19,
+    "bots_with_pages": 13,
+    "share_rows": 21
+  },
+  "refresh": {
+    "script": "(local)/Manager/dashboard_index/refresh_dashboard_index.py",
+    "suggested_launchd_plist": "(local)/Manager/dashboard_index/com.algowise.manager.dashboard-index.plist",
+    "suggested_schedule": "hourly StartInterval 3600 + daily review; also run after dashboard Pages publish"
+  }
+}

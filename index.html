@@ -1,0 +1,956 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+<title>AI Manager Summary — Bot Dashboards</title>
+<style>
+  :root { --bg:#0f1419; --card:#1a2332; --panel:#151922; --text:#e7ecf3; --muted:#8b9bb4; --accent:#3d8bfd; --ok:#3dd68c; --bad:#f87171; --warn:#fbbf24; --border:#243044; --border-soft:#1c2a3d; --header-bg:#152033; --surface:#0b1220; --inset:#0b1220; --chip-bg:#1a2f4a; --code-bg:#0b1220; --shadow:0 1px 0 rgba(255,255,255,.03); --shadow-md:0 4px 14px rgba(0,0,0,.22); }
+  * { box-sizing:border-box; }
+  body { margin:0; font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", sans-serif; background:var(--bg); color:var(--text); line-height:1.45; -webkit-text-size-adjust:100%; text-size-adjust:100%; }
+  .meta { color:var(--muted); font-size:0.88rem; }
+  table { width:100%; border-collapse:collapse; background:var(--card); border-radius:12px; overflow:hidden; border:1px solid var(--border,#243044); }
+  th, td { text-align:left; padding:11px 12px; vertical-align:top; border-bottom:1px solid var(--border,#243044); font-size:0.9rem; }
+  th { background:var(--header-bg,#132033); color:var(--muted); font-weight:650; font-size:0.8rem; text-transform:uppercase; letter-spacing:0.04em; }
+  tr:last-child td { border-bottom:none; }
+  a { color:var(--accent); text-decoration:none; }
+  a:hover { text-decoration:underline; }
+  .st.up { color:var(--ok); }
+  .st.down { color:var(--bad); }
+  .st.listening { color:var(--warn); }
+  .st.conflict { color:var(--bad); }
+  .warn { color:var(--warn); font-size:0.85rem; }
+  code { background:var(--inset,#0b1220); padding:1px 5px; border-radius:4px; font-size:0.84em; }
+  .foot { margin-top:28px; color:var(--muted); font-size:0.82rem; line-height:1.55; }
+  .section-title { margin:28px 0 10px; font-size:1.12rem; font-weight:650; }
+
+  /* --- base layout --- */
+  .wrap { max-width:1280px; margin:0 auto; width:100%; }
+  header { padding:22px 28px 18px; border-bottom:1px solid var(--border,#243044); background:linear-gradient(180deg,var(--header-bg,#152033) 0%,var(--bg) 100%); }
+  header .links { margin-top:10px; display:flex; flex-wrap:wrap; gap:10px 18px; font-size:0.9rem; }
+  header .links a { font-weight:600; word-break:break-all; }
+  .badge { display:inline-block; padding:2px 8px; border-radius:99px; font-size:0.75rem; font-weight:600; }
+  .badge.local { background:#1e3a2f; color:var(--ok); }
+  .badge.public { background:var(--chip-bg,#1a2f4a); color:var(--accent); }
+  main { padding:20px 28px 56px; }
+  h1 { margin:0 0 4px; font-size:1.55rem; letter-spacing:-0.02em; }
+  h2 { margin:0 0 6px; font-size:1.12rem; font-weight:650; }
+  .sec-label { font-size:0.78rem; text-transform:uppercase; letter-spacing:0.06em; color:var(--muted); font-weight:650; margin-bottom:12px; }
+  .sec-head { display:flex; flex-wrap:wrap; align-items:baseline; justify-content:space-between; gap:8px; margin:26px 0 12px; }
+  .top-grid { display:grid; grid-template-columns:1.4fr 1fr; gap:16px; margin-top:4px; }
+  .card { background:var(--card); border-radius:14px; padding:16px 18px; border:1px solid var(--border,#243044); box-shadow:var(--shadow); }
+  .card.sub { background:var(--panel,#121a27); margin:0; }
+  .card.goal { border-color:#2a4a7a; background:linear-gradient(165deg,#1a283c 0%,var(--card) 55%); }
+  .goal-hero { display:flex; gap:16px; align-items:flex-start; flex-wrap:wrap; margin-bottom:12px; }
+  .goal-side { flex:1 1 220px; min-width:0; }
+  .goal-nums { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:10px; }
+  .kpi { min-width:88px; flex:1 1 88px; background:var(--inset,#0b1220); border-radius:10px; padding:10px 12px; border:1px solid var(--border-soft,#1c2a3d); }
+  .kpi.accent-bad .n { color:var(--warn); }
+  .kpi .n { font-size:1.35rem; font-weight:750; line-height:1.15; letter-spacing:-0.02em; }
+  .kpi .den { font-size:0.88rem; color:var(--muted); font-weight:500; }
+  .kpi .lbl { font-size:0.72rem; color:var(--muted); margin-top:3px; }
+  .ring { --p:0; --c:#3d8bfd; width:108px; height:108px; border-radius:50%;
+    background: conic-gradient(var(--c, var(--chart-1, #3d8bfd)) calc(var(--p) * 1%), var(--chart-track, #1c2a3d) 0);
+    display:grid; place-items:center; flex:0 0 auto; box-shadow:inset 0 0 0 1px var(--border,#243044); }
+  .ring-inner { width:78px; height:78px; border-radius:50%; background:var(--inset,#0b1220); display:flex; flex-direction:column; align-items:center; justify-content:center; border:1px solid var(--border-soft,#1c2a3d); }
+  .ring-n { font-size:1.05rem; font-weight:750; letter-spacing:-0.02em; }
+  .ring-s { font-size:0.65rem; color:var(--muted); margin-top:1px; }
+  .progress-block { margin-top:4px; }
+  .pool-block { margin:10px 0 8px; }
+  .p-label { font-size:0.74rem; color:var(--muted); margin:6px 0 4px; font-weight:600; }
+  .bar-row { display:grid; grid-template-columns:1fr auto; gap:8px; align-items:center; margin:2px 0 8px; }
+  .bar-lab { grid-column:1 / -1; font-size:0.74rem; color:var(--muted); }
+  .bar { height:9px; background:var(--inset,#0b1220); border-radius:99px; overflow:hidden; border:1px solid var(--border-soft,#1c2a3d); }
+  .bar .fill { height:100%; background:linear-gradient(90deg,var(--chart-1, #3d8bfd),var(--chart-2, #3dd68c)); border-radius:99px; transition:width .2s ease; }
+  .bar .fill.warn { background:linear-gradient(90deg,#f59e0b,#fbbf24); }
+  .bar .fill.bad { background:linear-gradient(90deg,#ef4444,#f87171); }
+  .bar .fill.accent { background:linear-gradient(90deg,#2563eb,#3d8bfd); }
+  .bar .fill.ok { background:linear-gradient(90deg,#059669,#3dd68c); }
+  .bar-pct { font-size:0.72rem; color:var(--muted); min-width:2.4em; text-align:right; font-variant-numeric:tabular-nums; }
+  .stack { display:flex; height:14px; border-radius:99px; overflow:hidden; background:var(--inset,#0b1220); border:1px solid var(--border-soft,#1c2a3d); }
+  .stack.thin { height:10px; margin-top:8px; }
+  .stack-seg { height:100%; min-width:2px; }
+  .stack-seg.pl { background:var(--chart-2, #3dd68c); }
+  .stack-seg.col { background:var(--chart-1, #3d8bfd); }
+  .stack-seg.bt { background:var(--chart-3, #a78bfa); }
+  .stack-seg.ro { background:var(--chart-4, #67e8f9); }
+  .stack-seg.ret { background:var(--chart-6, #64748b); }
+  .stack-seg.oth { background:#334155; }
+  .stack-seg.bad { background:#f87171; }
+  .stack-seg.warn { background:#fbbf24; }
+  .stack-leg { display:flex; flex-wrap:wrap; gap:8px 14px; margin-top:8px; font-size:0.74rem; color:var(--muted); }
+  .stack-leg .leg b { color:var(--text); font-weight:650; margin-left:2px; }
+  .stack-leg i { display:inline-block; width:8px; height:8px; border-radius:2px; margin-right:5px; vertical-align:middle; }
+  .stack-leg i.pl { background:var(--chart-2, #3dd68c); }
+  .stack-leg i.col { background:var(--chart-1, #3d8bfd); }
+  .stack-leg i.bt { background:var(--chart-3, #a78bfa); }
+  .stack-leg i.ro { background:var(--chart-4, #67e8f9); }
+  .stack-leg i.ret { background:var(--chart-6, #64748b); }
+  .stack-leg i.oth { background:#334155; }
+  .metric-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .mcard { background:var(--inset,#0b1220); border:1px solid var(--border-soft,#1c2a3d); border-radius:12px; padding:12px 12px 10px; }
+  .mcard-h { font-size:0.72rem; text-transform:uppercase; letter-spacing:0.05em; color:var(--muted); font-weight:650; margin-bottom:6px; }
+  .mcard-n { font-size:1.25rem; font-weight:750; letter-spacing:-0.02em; margin-bottom:4px; }
+  .mcard-n .den { font-size:0.85rem; color:var(--muted); font-weight:500; }
+  .mcard-meta { font-size:0.74rem; color:var(--muted); margin-top:4px; line-height:1.35; }
+  .chip-row { display:flex; flex-wrap:wrap; gap:6px; margin:2px 0 4px; }
+  .chip { display:inline-block; padding:3px 9px; border-radius:99px; font-size:0.72rem; font-weight:650; background:var(--chip-bg,#1a2f4a); color:var(--accent); border:1px solid var(--border,#243044); }
+  .chip.ok { background:#143526; color:var(--ok); border-color:#1e4a36; }
+  .chip.warn { background:#3a2e14; color:var(--warn); border-color:#5a4520; }
+  .chip.bad { background:#3a1a1a; color:var(--bad); border-color:#5a2828; }
+  .chip.accent { background:var(--chip-bg,#1a2f4a); color:var(--accent); }
+  .chip.muted { background:var(--panel,#121a27); color:var(--muted); border-color:#1c2a3d; }
+  .metrics-fold { margin-top:10px; background:transparent; border:none; padding:0; }
+  .metrics-fold summary { cursor:pointer; color:var(--muted); font-size:0.82rem; font-weight:600; }
+  .two-col { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+  .two-col.tight { margin-top:10px; }
+  .hl-deliv { margin-bottom:8px; }
+  ul { margin:6px 0 0; padding-left:1.15rem; }
+  ul.compact { margin-top:8px; }
+  ul.flat { list-style:disc; }
+  li { margin:3px 0; line-height:1.4; font-size:0.9rem; }
+  .metrics-strip li { font-size:0.88rem; }
+  .col-hl h4 { color:var(--ok, #7dd3a7); }
+  .col-deliv h4 { color:var(--accent, #7eb6ff); }
+  h4 { margin:0 0 8px; font-size:0.95rem; font-weight:650; }
+  .muted { color:var(--muted); }
+  details.daily-fold, details.hist-fold { margin:12px 0 0; background:var(--card); border:1px solid var(--border,#243044); border-radius:10px; padding:10px 14px; }
+  details summary { cursor:pointer; color:var(--muted); font-size:0.9rem; font-weight:600; }
+  details[open] summary { margin-bottom:8px; color:var(--text); }
+  table.hist { margin-top:6px; }
+  table.bots { border-radius:14px; }
+  table.bots th:nth-child(1) { width:16%; }
+  table.bots th:nth-child(2), table.bots th:nth-child(3) { width:24%; }
+  table.bots tr.aspect-group td {
+    background:var(--header-bg,#132033); color:var(--accent); font-weight:700; font-size:0.82rem;
+    text-transform:uppercase; letter-spacing:0.05em; padding-top:14px; padding-bottom:8px;
+    border-bottom:1px solid #2a4a7a;
+  }
+  table.bots tr.aspect-empty td { color:var(--muted); font-size:0.85rem; }
+  ul.grouped li.aspect-subhead {
+    list-style:none; margin:10px 0 4px -0.4rem; padding:4px 0 2px;
+    color:var(--accent); font-weight:700; font-size:0.78rem;
+    text-transform:uppercase; letter-spacing:0.04em;
+    border-bottom:1px solid var(--border,#243044);
+  }
+  ul.grouped li.aspect-subhead:first-child { margin-top:0; }
+  table.bots tr.manager-row { background:#15263a; }
+  table.bots tr.manager-row td { border-bottom:2px solid #2a4a7a; }
+  .pill { display:inline-block; font-size:0.72rem; padding:1px 7px; border-radius:99px; margin-left:6px; vertical-align:middle; background:var(--chip-bg,#1a2f4a); color:var(--accent); font-weight:650; }
+  /* horizontal scroll for wide tables */
+  .table-scroll { width:100%; overflow-x:auto; -webkit-overflow-scrolling:touch; overscroll-behavior-x:contain; margin:6px 0; border-radius:12px; }
+  .table-scroll > table { min-width:560px; margin:0; }
+  .table-scroll.bots-wrap > table { min-width:640px; }
+  .table-scroll.shares-wrap > table { min-width:560px; }
+
+  /* ===== tablet ≤960px ===== */
+  @media (max-width:960px) {
+    .top-grid { grid-template-columns:1fr; }
+    main { padding:16px 16px 48px; }
+    header { padding:16px; }
+    .two-col { grid-template-columns:1fr; }
+    h1 { font-size:1.35rem; }
+  }
+
+  /* ===== phone / small tablet ≤700px ===== */
+  @media (max-width:700px) {
+    html { -webkit-text-size-adjust:100%; text-size-adjust:100%; }
+    body { font-size:16px; line-height:1.5; } /* readable; avoids iOS zoom-on-focus quirks */
+    header { padding:14px 12px; }
+    main { padding:12px 12px 40px; }
+    h1 { font-size:1.28rem; }
+    h2, .section-title { font-size:1.05rem; }
+    .sec-label { font-size:0.72rem; margin-bottom:10px; }
+    .sec-head { margin:18px 0 10px; gap:6px; }
+    .card { padding:14px 12px; border-radius:12px; }
+    .goal-hero { flex-direction:column; align-items:center; gap:12px; }
+    .goal-side { width:100%; flex:1 1 auto; }
+    .goal-nums { gap:6px; }
+    .kpi { min-width:calc(50% - 6px); flex:1 1 calc(50% - 6px); padding:12px 10px; }
+    .kpi .n { font-size:1.28rem; }
+    .kpi .lbl { font-size:0.7rem; }
+    .ring { width:96px; height:96px; }
+    .ring-inner { width:70px; height:70px; }
+    .metric-grid { grid-template-columns:1fr; gap:8px; }
+    .mcard { padding:14px 12px; }
+    .mcard-n { font-size:1.2rem; }
+    .chip { padding:6px 12px; font-size:0.78rem; min-height:32px; display:inline-flex; align-items:center; } /* touch-friendly */
+    .chip-row { gap:8px; }
+    li { font-size:0.95rem; line-height:1.45; }
+    header .links { gap:8px; font-size:0.85rem; }
+    header .links a { padding:6px 0; display:inline-block; min-height:32px; }
+    details.daily-fold, details.hist-fold { padding:12px; }
+    details summary { font-size:0.95rem; padding:6px 0; min-height:36px; display:flex; align-items:center; } /* tap target */
+    .metrics-fold summary { font-size:0.9rem; padding:8px 0; min-height:36px; }
+    .foot { font-size:0.8rem; word-break:break-word; }
+    /* bots: card stack on phone */
+    table.bots, table.bots thead, table.bots tbody, table.bots th, table.bots td, table.bots tr { display:block; }
+    table.bots { min-width:0 !important; border-radius:12px; overflow:hidden; }
+    table.bots thead { display:none; }
+    table.bots tr { border-bottom:1px solid var(--border,#243044); padding:12px 12px; }
+    table.bots td { border:none; padding:5px 0; font-size:0.9rem; word-break:break-word; }
+    table.bots td a { display:inline-block; padding:4px 0; min-height:32px; }
+    .table-scroll.bots-wrap { overflow-x:visible; }
+    .table-scroll.bots-wrap > table { min-width:0; }
+    /* hist / shares stay scrollable */
+    .table-scroll > table.hist,
+    .table-scroll.shares-wrap > table { min-width:480px; }
+    th, td { padding:10px 10px; font-size:0.88rem; }
+  }
+
+  /* ===== narrow phone ≤420px ===== */
+  @media (max-width:420px) {
+    .kpi { min-width:100%; flex:1 1 100%; }
+    .ring { width:88px; height:88px; }
+    .ring-inner { width:64px; height:64px; }
+    .ring-n { font-size:0.95rem; }
+    header .meta { font-size:0.8rem; }
+  }
+
+  /* ===== tablet landscape / medium 701–900 ===== */
+  @media (min-width:701px) and (max-width:900px) {
+    .metric-grid { grid-template-columns:1fr 1fr; }
+    .kpi { min-width:100px; }
+  }
+
+  /* --- aspect tabs --- */
+  .aspect-tabs { margin-top:4px; }
+  .tabs-head { margin-top:8px; }
+  /* AM avatarColor: General=black, Trading=violet, Work=blue, Personal +=yellow, Personal −=gray */
+  .tab-bar { display:flex; flex-wrap:wrap; gap:8px; margin:10px 0 14px; padding:4px; background:var(--surface,#0b1220); border:1px solid var(--border,#243044); border-radius:12px; }
+  .tab-btn { appearance:none; border:1px solid transparent; background:transparent; color:var(--muted); font:inherit; font-weight:650; font-size:0.9rem; padding:10px 16px; border-radius:10px; cursor:pointer; min-height:40px; display:inline-flex; align-items:center; gap:8px; }
+  .tab-btn .dot { width:9px; height:9px; border-radius:50%; background:currentColor; opacity:.55; flex:0 0 auto; }
+  .tab-btn:hover { color:var(--text); background:rgba(127,127,127,.12); }
+  .tab-btn.aspect-general { --tab-c:#111111; --tab-soft:rgba(17,17,17,.55); --tab-fg:#f5f5f5; }
+  .tab-btn.aspect-trading { --tab-c:#8b5cf6; --tab-soft:rgba(139,92,246,.22); --tab-fg:#ede9fe; }
+  .tab-btn.aspect-work { --tab-c:#3b82f6; --tab-soft:rgba(59,130,246,.22); --tab-fg:#dbeafe; }
+  .tab-btn.aspect-plus { --tab-c:#eab308; --tab-soft:rgba(234,179,8,.22); --tab-fg:#1c1917; }
+  .tab-btn.aspect-minus { --tab-c:#9ca3af; --tab-soft:rgba(156,163,175,.22); --tab-fg:#111827; }
+  .tab-btn .dot { background:var(--tab-c, currentColor); opacity:1; }
+  .tab-btn.active { color:var(--tab-fg, var(--text)); background:var(--tab-soft, #1a2f4a); border-color:var(--tab-c, #2a4a7a); box-shadow:0 0 0 1px var(--tab-c, #2a4a7a) inset; }
+  .chip-board { display:flex; flex-direction:column; gap:8px; margin-top:4px; }
+  .aspect-chip-head { display:inline-flex; align-items:center; gap:7px; font-size:0.72rem; font-weight:750; letter-spacing:0.05em; text-transform:uppercase; color:var(--tab-c, var(--accent)); margin-top:4px; }
+  .aspect-chip-head .dot { width:8px; height:8px; border-radius:50%; background:var(--tab-c, var(--accent)); }
+  .aspect-chip-head.aspect-general, .chip-row.aspect-general { --tab-c:#111111; }
+  .aspect-chip-head.aspect-trading, .chip-row.aspect-trading { --tab-c:#8b5cf6; }
+  .aspect-chip-head.aspect-work, .chip-row.aspect-work { --tab-c:#3b82f6; }
+  .aspect-chip-head.aspect-plus, .chip-row.aspect-plus { --tab-c:#eab308; }
+  .aspect-chip-head.aspect-minus, .chip-row.aspect-minus { --tab-c:#9ca3af; }
+  .chip-row { display:flex; flex-wrap:wrap; gap:6px; }
+  .chip.item { max-width:100%; background:var(--surface,#0b1220); border:1px solid var(--border,#243044); border-left:3px solid var(--tab-c, var(--accent)); color:var(--text); font-weight:600; font-size:0.78rem; line-height:1.25; padding:7px 10px; border-radius:10px; }
+  .chip-more { font-size:0.78rem; margin-top:2px; }
+  table.bots tr.aspect-group.aspect-general td { color:#f5f5f5; background:#111111; border-bottom-color:#333; }
+  table.bots tr.aspect-group.aspect-trading td { color:#ede9fe; background:rgba(139,92,246,.28); border-bottom-color:#8b5cf6; }
+  table.bots tr.aspect-group.aspect-work td { color:#dbeafe; background:rgba(59,130,246,.28); border-bottom-color:#3b82f6; }
+  table.bots tr.aspect-group.aspect-plus td { color:#1c1917; background:rgba(234,179,8,.35); border-bottom-color:#eab308; }
+  table.bots tr.aspect-group.aspect-minus td { color:#111827; background:rgba(156,163,175,.35); border-bottom-color:#9ca3af; }
+  .tab-pane[hidden] { display:none !important; }
+  .tab-pane.active { display:block; }
+  .aspect-card { margin-top:4px; border-color:#2a4a7a; }
+  .aspect-head { display:flex; flex-wrap:wrap; justify-content:space-between; gap:10px; align-items:flex-start; margin-bottom:12px; }
+  .aspect-name { margin:0; font-size:1.35rem; letter-spacing:-0.02em; }
+  .aspect-update { background:var(--inset,#0b1220); border:1px solid var(--border-soft,#1c2a3d); border-radius:12px; padding:12px 14px; margin-bottom:12px; }
+  .aspect-update .update-text { margin:4px 0 0; font-size:0.95rem; line-height:1.45; font-weight:600; }
+  .aspect-update .standing { margin-top:6px; }
+  .aspect-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px 16px; margin-bottom:12px; }
+  .aspect-grid .span-2 { grid-column:1 / -1; }
+  .aspect-grid p { margin:4px 0 0; font-size:0.9rem; line-height:1.4; color:var(--text); }
+  .aspect-details ul { margin-top:4px; }
+  h3 { margin:0; font-size:1.2rem; }
+
+  @media (max-width:700px) {
+    .tab-bar { gap:6px; padding:6px; }
+    .tab-btn { flex:1 1 calc(50% - 6px); text-align:center; padding:12px 10px; font-size:0.88rem; }
+    .aspect-grid { grid-template-columns:1fr; }
+  }
+
+</style>
+<!-- algowise-theme-head -->
+<script>
+(function(){try{var m=localStorage.getItem("algowise-theme")||"system";
+document.documentElement.setAttribute("data-theme",m);
+var dark=window.matchMedia("(prefers-color-scheme: dark)").matches;
+var r=m==="light"?"light":m==="dark"?"dark":(dark?"dark":"light");
+document.documentElement.setAttribute("data-theme-resolved",r);
+}catch(e){}})();
+</script>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <h1>AI Manager Summary</h1>
+  <div class="meta">溝通重點 + Bot Dashboards · Generated 2026-11-01 03:35:55 HKT · Mac Mini · no AI</div>
+  <div class="links">
+    <span><span class="badge local">Local</span> <a href="http://m2-mac-mini:8764/">http://m2-mac-mini:8764/</a> · <a href="http://127.0.0.1:8764/">http://127.0.0.1:8764/</a></span>
+    <span><span class="badge public">Public</span> <a href="https://algowise-ai.github.io/ai-manager-summary/" target="_blank" rel="noopener">https://algowise-ai.github.io/ai-manager-summary/</a></span>
+  </div>
+  <div class="meta" style="margin-top:8px">Listening: <code>0.0.0.0:8789</code>, <code>0.0.0.0:8774</code>, <code>0.0.0.0:8769</code>, <code>0.0.0.0:8771</code>, <code>0.0.0.0:8788</code>, <code>0.0.0.0:8773</code>, <code>0.0.0.0:8775</code>, <code>0.0.0.0:8787</code>, <code>0.0.0.0:8767</code>, <code>0.0.0.0:8772</code>, <code>0.0.0.0:8766</code>, <code>0.0.0.0:8764</code>, <code>0.0.0.0:8765</code>, <code>0.0.0.0:8768</code>, <code>0.0.0.0:8770</code> · bots 19/19 up · pages 13</div>
+</header>
+<main>
+  
+  <section class="aspect-tabs" id="aspect-tabs">
+    <div class="sec-head tabs-head">
+      <h2>Aspects</h2>
+      <div class="meta">AI Manger 協調各 AM + General + Unassigned；各方面資料／bots／groups 唔互通。 · updated 2026-11-01 00:05:07 HKT</div>
+    </div>
+    <div class="tab-bar" role="tablist" aria-label="Aspect tabs">
+      <button type="button" class="tab-btn aspect-general active" role="tab" aria-selected="true" data-tab="tab-0" data-aspect="General" id="btn-tab-0"><span class="dot"></span>General</button><button type="button" class="tab-btn aspect-trading" role="tab" aria-selected="false" data-tab="tab-1" data-aspect="Trading" id="btn-tab-1"><span class="dot"></span>Trading</button><button type="button" class="tab-btn aspect-work" role="tab" aria-selected="false" data-tab="tab-2" data-aspect="Work" id="btn-tab-2"><span class="dot"></span>Work</button><button type="button" class="tab-btn aspect-plus" role="tab" aria-selected="false" data-tab="tab-3" data-aspect="Personal +" id="btn-tab-3"><span class="dot"></span>Personal +</button><button type="button" class="tab-btn aspect-minus" role="tab" aria-selected="false" data-tab="tab-4" data-aspect="Personal −" id="btn-tab-4"><span class="dot"></span>Personal −</button>
+    </div>
+    <div class="tab-panes">
+      <div class="tab-pane active" role="tabpanel" id="tab-0" data-label="General">
+  <section class="top-grid" id="top">
+    <div class="card goal" id="year-goal">
+      <div class="sec-label">一年目標進度</div>
+      <div class="goal-hero">
+        <div class="ring" style="--p:100.0;--c:#3dd68c"><div class="ring-inner"><div class="ring-n">22/20</div><div class="ring-s">池進度</div></div></div>
+        <div class="goal-side">
+          <div class="goal-nums">
+            <div class="kpi"><div class="n">22<span class="den">/20</span></div><div class="lbl">在玩 methods</div></div>
+            <div class="kpi accent-bad"><div class="n">0</div><div class="lbl">proven US$200/日</div></div>
+            <div class="kpi"><div class="n">10</div><div class="lbl">paper-live</div></div>
+            <div class="kpi"><div class="n">9</div><div class="lbl">retired</div></div>
+            <div class="kpi"><div class="n">5</div><div class="lbl">collecting</div></div>
+            <div class="kpi"><div class="n">100.0%</div><div class="lbl">池進度</div></div>
+          </div>
+          <div class="progress-block">
+            <div class="p-label">池進度（在玩 / 20）</div>
+            <div class="bar-row"><div class="bar"><div class="fill ok" style="width:100.0%"></div></div><div class="bar-pct">100%</div></div>
+            <div class="p-label">Proven milestone（≥1 method @ US$200/日）</div>
+            <div class="bar-row"><div class="bar"><div class="fill warn" style="width:0.0%"></div></div><div class="bar-pct">0%</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="pool-block">
+        <div class="p-label">池組成（scoreboard counts）</div>
+        <div class="stack" role="img" aria-label="pool composition"><div class="stack-seg pl" style="width:32.26%" title="paper-live: 10"></div><div class="stack-seg col" style="width:16.13%" title="collecting: 5"></div><div class="stack-seg bt" style="width:12.90%" title="BT-only: 4"></div><div class="stack-seg ro" style="width:9.68%" title="report: 3"></div><div class="stack-seg ret" style="width:29.03%" title="retired: 9"></div></div><div class="stack-leg"><span class="leg"><i class="pl"></i>paper-live <b>10</b></span><span class="leg"><i class="col"></i>collecting <b>5</b></span><span class="leg"><i class="bt"></i>BT-only <b>4</b></span><span class="leg"><i class="ro"></i>report <b>3</b></span><span class="leg"><i class="ret"></i>retired <b>9</b></span></div>
+      </div>
+      <ul class="compact"><li>一年目標：~20 methods 池 · proven US$200/日</li><li>池約 22 條在玩（paper-live 10 / collecting 5 / BT-only 4 / report-only 3；retired 9；PM paper books 582）· proven US$200/日 = 0</li><li>proven US$200/日 = 0（未達標；唔造數）</li><li>進度（在玩/20）：22/20（~100.0%）</li></ul>
+      <div class="meta">來源：strategy_scoreboard · updated 2026-11-01 00:05:07 HKT</div>
+    </div>
+    <div class="card metrics-strip" id="metrics">
+      <div class="sec-label">Metrics（用量／工具）</div>
+      
+      <div class="metric-grid">
+        <div class="mcard">
+          <div class="mcard-h">DeepSeek 今日</div>
+          <div class="mcard-n">0.0<span class="den">/15 CNY</span></div>
+          <div class="bar-row"><div class="bar"><div class="fill ok" style="width:0.0%"></div></div><div class="bar-pct">0%</div></div>
+          <div class="mcard-meta">餘額 CNY 18.8 · 0% of cap</div>
+        </div>
+        <div class="mcard">
+          <div class="mcard-h">Hermes</div>
+          <div class="chip-row"><span class="chip ok">閒置</span><span class="chip muted">workers 0</span><span class="chip muted">pending 0</span></div>
+          <div class="mcard-meta">Hermes：閒（queue 空）</div>
+        </div>
+        <div class="mcard">
+          <div class="mcard-h">Dashboards</div>
+          <div class="chip-row"><span class="chip ok">up 19</span><span class="chip muted">down 0</span><span class="chip muted">conflict 0</span><span class="chip muted">listen 15</span></div>
+          <div class="stack thin" role="img" aria-label="dashboard status"><div class="stack-seg pl" style="width:100.00%" title="up: 19"></div></div>
+        </div>
+        <div class="mcard">
+          <div class="mcard-h">launchd · Cursor</div>
+          <div class="chip-row"><span class="chip accent">跑緊 17</span><span class="chip ok">OK 216</span><span class="chip bad">fail 17</span><span class="chip warn">AI交接 16</span></div>
+          <div class="mcard-meta">Cursor／Grok thrifty · 本地無雲端 token 帳單</div>
+        </div>
+      </div>
+
+      <details class="metrics-fold"><summary>文字明細</summary>
+        <ul class="flat"><li>DeepSeek 今日約用 CNY 0.0/15（餘額 18.8 · 0%）</li><li>Cursor／Grok thrifty：本地無雲端 token 帳單；bot_status AI 交接約 16（TG Football Tips: 8 message(s) left for AI；Left for AI 24h: 8; picks awaiting HKJC odds/match lookup (latest) 31；Left for AI 24h: n/a (no AI hand-off queue; stdlib parser)）</li><li>Hermes：閒（queue 空）</li><li>launchd：跑緊 17 · 閒 OK 216 · 非零 exit 17</li><li>Dashboard：up 19 · down 0 · conflict 0 · listening 15</li></ul>
+      </details>
+    </div>
+  </section>
+
+  <section class="comm" id="highlights">
+    <div class="sec-head">
+      <h2>Highlights · Deliverables</h2>
+      <div class="meta">4h Highlight · 11-01 00:05 · 2026-11-01 00:05:05 HKT · <a href="highlights.json">highlights.json</a></div>
+    </div>
+    <div class="two-col hl-deliv">
+      <div class="card sub col-hl">
+        <h4>Highlights</h4>
+        <div class="chip-board"><div class="aspect-chip-head aspect-general" data-aspect="General"><span class="dot"></span>General</div><div class="chip-row aspect-general"><span class="chip item" title="窗：過去約 4h／最新快照 · 產生 2026-11-01 00:05:05 HKT · no AI">窗：過去約 4h／最新快照 · 產生 2026-11-01 00:05:05 HKT · no AI</span><span class="chip item" title="一年目標：~20 methods 池 · proven US$200/日">一年目標：~20 methods 池 · proven US$200/日</span><span class="chip item" title="proven US$200/日 = 0（未達標；唔造數）">proven US$200/日 = 0（未達標；唔造數）</span><span class="chip item" title="DeepSeek 今日約用 CNY 0.0/15（餘額 18.8 · 0%）">DeepSeek 今日約用 CNY 0.0/15（餘額 18.8 · 0%）</span><span class="chip item" title="Cursor／Grok thrifty：本地無雲端 token 帳單；bot_status AI 交接約 16（TG Football Tips: 8 message(s) left for AI；Left for AI 24h: 8; picks awaiting HKJC odds/match lookup (latest) 31；Left for AI 24h: n/a (no AI hand-off queue; stdlib parser)）">Cursor／Grok thrifty：本地無雲端 token 帳單；bot_status AI 交接約 16（TG Football Tip…</span><span class="chip item" title="Hermes：閒（queue 空）">Hermes：閒（queue 空）</span><span class="chip item" title="launchd：跑緊 17 · 閒 OK 216 · 非零 exit 17">launchd：跑緊 17 · 閒 OK 216 · 非零 exit 17</span><span class="chip item" title="Dashboard：up 19 · down 0 · conflict 0 · listening 15">Dashboard：up 19 · down 0 · conflict 0 · listening 15</span><span class="chip item" title="（另有 1 條 flag）">（另有 1 條 flag）</span></div><div class="aspect-chip-head aspect-trading" data-aspect="Trading"><span class="dot"></span>Trading</div><div class="chip-row aspect-trading"><span class="chip item" title="池約 22 條在玩（paper-live 10 / collecting 5 / BT-only 4 / report-only 3；retired 9；PM paper books 582）· proven US$200/日 = 0">池約 22 條在玩（paper-live 10 / collecting 5 / BT-only 4 / report-only 3；reti…</span><span class="chip item" title="Hermes queue_next：空（閒）">Hermes queue_next：空（閒）</span><span class="chip item" title="Bot status 2026-10-31 20:50 HKT (Mac Mini)">Bot status 2026-10-31 20:50 HKT (Mac Mini)</span><span class="chip item" title="Flags：TG Football Tips: 18 pending Live demo picks missing selection/odds/SL；TG Football Tips: 8 message(s) left for AI；Tipsme Betting: job tipsme-lite FAIL；Tipsme Betting: repeated errors (1 kinds)；TG Trading (FX/XAU): job collect FAIL">Flags：TG Football Tips: 18 pending Live demo picks missing selection/od…</span><span class="chip item" title="PM status_6h：Generated: 2026-10-31 23:12:06 HKT  |  Mode: PAPER ONLY  |  no AI">PM status_6h：Generated: 2026-10-31 23:12:06 HKT | Mode: PAPER ONLY | no…</span><span class="chip item" title="Football HKJC-gap paper ($10k bankroll) → equity $8262.08 | realized P&amp;L $-1599.74 | unrealized $-138.18 | cash $6748.96 | open_cost $1651.30 | open_value $1513.12">Football HKJC-gap paper ($10k bankroll) → equity $8262.08 | realized P&amp;…</span><span class="chip item" title="Football parallel ledger fb_kelly25 (25% Kelly, cap 3% of $10,000) → equity $8002.31 | realized P&amp;L $-1937.04 | unrealized $-60.65 | cash $6256.39 | open_cost $1806.57 | open_value $1745.92">Football parallel ledger fb_kelly25 (25% Kelly, cap 3% of $10,000) → eq…</span></div><div class="chip-more muted">+6 more</div></div>
+      </div>
+      <div class="card sub col-deliv">
+        <h4>Deliverables</h4>
+        <div class="chip-board"><div class="aspect-chip-head aspect-general" data-aspect="General"><span class="dot"></span>General</div><div class="chip-row aspect-general"><span class="chip item" title="dashboard_index CHANGED flag：2026-11-01 00:02:49 HKT">dashboard_index CHANGED flag：2026-11-01 00:02:49 HKT</span><span class="chip item" title="AI Manager Summary 頁有更新（11-01 00:03）→ http://m2-mac-mini:8764/ · http://127.0.0.1:8764/">AI Manager Summary 頁有更新（11-01 00:03）→ http://m2-mac-mini:8764/ · http:/…</span></div><div class="aspect-chip-head aspect-trading" data-aspect="Trading"><span class="dot"></span>Trading</div><div class="chip-row aspect-trading"><span class="chip item" title="近期 reports：546_pm_noncrypto_other_yes_midband_supply_variant_dig.md（17:08）; 547_pm_f1_motorsport_moneyline_midband_residual_dig.md（16:54）; 544_pm_weather_yes_midband_power_supply_variant_dig.md（16:40）; 539_pm_science_tech_other_midband_residual_dig.md（16:30）; 545_pm_nhl_hockey_moneyline_midband_residual_dig.md（16:30）; 543_pm_soccer_intl_ml_525a_fee_power_variant_dig.md（16:18）">近期 reports：546_pm_noncrypto_other_yes_midband_supply_variant_dig.md（17:…</span></div></div>
+      </div>
+    </div>
+    <details class="daily-fold"><summary>日結 · 日結 Highlight · 2026-10-31 · 2026-10-31 21:30:03 HKT</summary><div class="two-col tight"><div><h4>Highlights</h4><div class="chip-board"><div class="aspect-chip-head aspect-general" data-aspect="General"><span class="dot"></span>General</div><div class="chip-row aspect-general"><span class="chip item" title="窗：過去約 24h · 產生 2026-10-31 21:30:03 HKT · no AI">窗：過去約 24h · 產生 2026-10-31 21:30:03 HKT · no AI</span><span class="chip item" title="一年目標：~20 methods 池 · proven US$200/日">一年目標：~20 methods 池 · proven US$200/日</span><span class="chip item" title="proven US$200/日 = 0（未達標；唔造數）">proven US$200/日 = 0（未達標；唔造數）</span><span class="chip item" title="DeepSeek 今日約用 CNY 14.8/15（餘額 19.0 · 99%）">DeepSeek 今日約用 CNY 14.8/15（餘額 19.0 · 99%）</span><span class="chip item" title="Cursor／Grok thrifty：本地無雲端 token 帳單；bot_status AI 交接約 16（TG Football Tips: 8 message(s) left for AI；Left for AI 24h: 8; picks awaiting HKJC odds/match lookup (latest) 31；Left for AI 24h: n/a (no AI hand-off queue; stdlib parser)）">Cursor／Grok thrifty：本地無雲端 token 帳單；bot_status AI 交接約 16（TG Football Tip…</span><span class="chip item" title="Hermes：閒（queue 空）">Hermes：閒（queue 空）</span><span class="chip item" title="launchd：跑緊 25 · 閒 OK 207 · 非零 exit 18">launchd：跑緊 25 · 閒 OK 207 · 非零 exit 18</span><span class="chip item" title="Dashboard：up 19 · down 0 · conflict 0 · listening 15">Dashboard：up 19 · down 0 · conflict 0 · listening 15</span><span class="chip item" title="（另有 1 條 flag）">（另有 1 條 flag）</span></div><div class="aspect-chip-head aspect-trading" data-aspect="Trading"><span class="dot"></span>Trading</div><div class="chip-row aspect-trading"><span class="chip item" title="池約 22 條在玩（paper-live 10 / collecting 5 / BT-only 4 / report-only 3；retired 9；PM paper books 582）· proven US$200/日 = 0">池約 22 條在玩（paper-live 10 / collecting 5 / BT-only 4 / report-only 3；reti…</span></div><div class="chip-more muted">+12 more</div></div></div><div><h4>Deliverables</h4><div class="chip-board"><div class="aspect-chip-head aspect-general" data-aspect="General"><span class="dot"></span>General</div><div class="chip-row aspect-general"><span class="chip item" title="Sat hermes-12 — spend=1.01/15 bal~32.78; 515 DONE verified (leaders-dig launchd OK, dig MD 197L, plist md5 match); no START-without-END; queue was empty → enque">Sat hermes-12 — spend=1.01/15 bal~32.78; 515 DONE verified (leaders-dig…</span><span class="chip item" title="Sat hermes-12 evening (AM Trade) — spend=14.80/15 bal~18.99; queue empty pending=0 latest_done=546 (516–547 batch DONE; soft-exit1 523/531/547 all report STATUS">Sat hermes-12 evening (AM Trade) — spend=14.80/15 bal~18.99; queue empt…</span><span class="chip item" title="Sat hermes-12 evening (AI Manger) — spend≈14.80/15 bal~18.99; queue empty pending=0 latest_done=546 (516–547 batch DONE; soft-exit1 523/531/547 all report STATU">Sat hermes-12 evening (AI Manger) — spend≈14.80/15 bal~18.99; queue emp…</span><span class="chip item" title="dashboard_index CHANGED flag：2026-10-31 21:25:35 HKT">dashboard_index CHANGED flag：2026-10-31 21:25:35 HKT</span><span class="chip item" title="AI Manager Summary 頁有更新（10-31 21:25）→ http://m2-mac-mini:8764/ · http://127.0.0.1:8764/">AI Manager Summary 頁有更新（10-31 21:25）→ http://m2-mac-mini:8764/ · http:/…</span></div><div class="aspect-chip-head aspect-trading" data-aspect="Trading"><span class="dot"></span>Trading</div><div class="chip-row aspect-trading"><span class="chip item" title="Sat weekend off-peak refill — spend=1.22/15; 516–517 in-flight (no kickstart); appended RESEARCH-ONLY 518–529 to queue_parallel.pending (soccer068 late24+league">Sat weekend off-peak refill — spend=1.22/15; 516–517 in-flight (no kick…</span><span class="chip item" title="Hermes 今日完成 task：535, 534, 537, 540, 538, 541, 542, 543, 545, 539, 544, 546">Hermes 今日完成 task：535, 534, 537, 540, 538, 541, 542, 543, 545, 539, 544,…</span><span class="chip item" title="近期 reports：546_pm_noncrypto_other_yes_midband_supply_variant_dig.md（17:08）; 547_pm_f1_motorsport_moneyline_midband_residual_dig.md（16:54）; 544_pm_weather_yes_midband_power_supply_variant_dig.md（16:40）; 539_pm_science_tech_other_midband_residual_dig.md（16:30）; 545_pm_nhl_hockey_moneyline_midband_residual_dig.md（16:30）; 543_pm_soccer_intl_ml_525a_fee_power_variant_dig.md（16:18）">近期 reports：546_pm_noncrypto_other_yes_midband_supply_variant_dig.md（17:…</span></div></div></div></div></details>
+    <details class="hist-fold">
+      <summary>近 7 日滾動歷史</summary>
+      <div class="table-scroll">
+      <table class="hist">
+        <thead><tr><th>Kind</th><th>時間</th><th>Title</th><th>Counts</th></tr></thead>
+        <tbody><tr><td>4h</td><td>2026-10-31 20:05:03 HKT</td><td>4h Highlight · 10-31 20:05</td><td>22 hl / 6 deliv</td></tr><tr><td>4h</td><td>2026-10-31 16:05:05 HKT</td><td>4h Highlight · 10-31 16:05</td><td>22 hl / 6 deliv</td></tr><tr><td>4h</td><td>2026-10-31 12:05:05 HKT</td><td>4h Highlight · 10-31 12:05</td><td>22 hl / 6 deliv</td></tr><tr><td>4h</td><td>2026-10-31 08:05:07 HKT</td><td>4h Highlight · 10-31 08:05</td><td>22 hl / 4 deliv</td></tr><tr><td>4h</td><td>2026-10-31 04:05:02 HKT</td><td>4h Highlight · 10-31 04:05</td><td>22 hl / 4 deliv</td></tr><tr><td>4h</td><td>2026-10-31 00:05:09 HKT</td><td>4h Highlight · 10-31 00:05</td><td>22 hl / 6 deliv</td></tr><tr><td>daily</td><td>2026-10-30 21:30:08 HKT</td><td>日結 Highlight · 2026-10-30</td><td>22 hl / 17 deliv</td></tr><tr><td>4h</td><td>2026-10-30 20:05:07 HKT</td><td>4h Highlight · 10-30 20:05</td><td>22 hl / 15 deliv</td></tr><tr><td>4h</td><td>2026-10-30 16:05:05 HKT</td><td>4h Highlight · 10-30 16:05</td><td>22 hl / 14 deliv</td></tr><tr><td>4h</td><td>2026-10-30 12:05:05 HKT</td><td>4h Highlight · 10-30 12:05</td><td>22 hl / 8 deliv</td></tr><tr><td>4h</td><td>2026-10-30 10:31:59 HKT</td><td>4h Highlight · 10-30 10:31</td><td>22 hl / 6 deliv</td></tr><tr><td>4h</td><td>2026-10-30 10:19:02 HKT</td><td>4h Highlight · 10-30 10:19</td><td>22 hl / 6 deliv</td></tr></tbody>
+      </table>
+      </div>
+    </details>
+  </section>
+</div><div class="tab-pane" role="tabpanel" id="tab-1" data-label="Trading" hidden>
+    <div class="card aspect-card" data-aspect="trade">
+      <div class="aspect-head">
+        <div>
+          <div class="sec-label">Aspect</div>
+          <h3 class="aspect-name">Trade</h3>
+        </div>
+        <div class="chip-row">
+          <span class="chip accent">AM Trade</span>
+          <span class="chip muted">Trading</span>
+        </div>
+      </div>
+      <div class="aspect-update">
+        <div class="p-label">Update</div>
+        <p class="update-text">池約 22 條在玩（paper-live 10 / collecting 5 / BT-only 4 / report-only 3；retired 9；PM paper books 582）· proven US$200/日 = 0 · Hermes：閒（queue 空） · DeepSeek 今日約用 CNY 0.0/15（餘額 18.8 · 0%）</p>
+        <div class="meta standing">Trading 最高優先；Aspect 資料唔互通。</div>
+      </div>
+      <div class="aspect-grid">
+        <div>
+          <div class="p-label">AM</div>
+          <p>AM Trade</p>
+        </div>
+        <div>
+          <div class="p-label">Machines</div>
+          <p>M2 Mini 16G（Grok／Hermes／dash 主機）；MF64 64G（tickdata／重 BT 專用）；MF32 N305 32G（MT4／MT5／平台 deploy）；可選 MF32 N150 32G 接手個人 Chrome tabs 以清走 MF64</p>
+        </div>
+        <div class="span-2">
+          <div class="p-label">Bots</div>
+          <p>Polymarket、Tipsme、TG Football、TG Trading、Blogabet、BettingExpert、Horse Racing、Darwinex*、Crypto Funding、Trading View、Options Theta、Axi Select、MT4/MT5 EA、Myfxbot、Goal</p>
+        </div>
+      </div>
+      <div class="aspect-details">
+        <div class="p-label">Details</div>
+        <ul><li>Hermes queue_next：空（閒）</li><li>Bot status 2026-10-31 20:50 HKT (Mac Mini)</li><li>Flags：TG Football Tips: 18 pending Live demo picks missing selection/odds/SL；TG Football Tips: 8 message(s) left for AI；Tipsme Betting: job tipsme-lite FAIL；Tipsme Betting: repeated errors (1 kinds)；TG Trading (FX/XAU): job collect FAIL</li><li>Scoreboard paper-live（摘錄）：</li><li>PM HKJC-gap football (paper)：US$-1602.22</li><li>Crypto funding carry A (paper)：US$-1.85</li><li>近期 reports：546_pm_noncrypto_other_yes_midband_supply_variant_dig.md（17:08）; 547_pm_f1_motorsport_moneyline_midband_residual_dig.md（16:54）; 544_pm_weather_yes_midband_power_supply_variant_dig.md（16:40）; 539_pm_science_tech_other_midband_residual_dig.md（16:30）; 545_pm_nhl_hockey_moneyline_midband_residual_dig.md（16:30）; 543_pm_soccer_intl_ml_525a_fee_power_variant_dig.md（16:18）</li></ul>
+      </div>
+      <div class="meta">Aspect 資料／bots／groups 唔互通 · 本 pane 只顯示此面</div>
+    </div>
+</div><div class="tab-pane" role="tabpanel" id="tab-2" data-label="Work" hidden>
+    <div class="card aspect-card" data-aspect="work">
+      <div class="aspect-head">
+        <div>
+          <div class="sec-label">Aspect</div>
+          <h3 class="aspect-name">Work</h3>
+        </div>
+        <div class="chip-row">
+          <span class="chip accent">AM Work</span>
+          <span class="chip muted">Work</span>
+        </div>
+      </div>
+      <div class="aspect-update">
+        <div class="p-label">Update</div>
+        <p class="update-text">輕量／檔案為主；未獨佔 M1 8G。 · WSD ME Career dash：http://127.0.0.1:8899/（up）</p>
+        <div class="meta standing">輕量；WSD ME Career dash :8899（可偵測則顯示）。</div>
+      </div>
+      <div class="aspect-grid">
+        <div>
+          <div class="p-label">AM</div>
+          <p>AM Work</p>
+        </div>
+        <div>
+          <div class="p-label">Machines</div>
+          <p>暫 on hold 獨佔 M1 Mini 8G（輕量／存檔為主）；未分機前共用／輕存</p>
+        </div>
+        <div class="span-2">
+          <div class="p-label">Bots</div>
+          <p>WSD related work、WSD ME career path</p>
+        </div>
+      </div>
+      <div class="aspect-details">
+        <div class="p-label">Details</div>
+        <ul><li>WSD ME Career dash：http://127.0.0.1:8899/（up）</li><li>機：暫 on hold 獨佔 M1 Mini 8G。</li><li>WSD ME Career：本地 http://127.0.0.1:8899/（偵測 listening 則標 up）。</li></ul>
+      </div>
+      <div class="meta">Aspect 資料／bots／groups 唔互通 · 本 pane 只顯示此面</div>
+    </div>
+</div><div class="tab-pane" role="tabpanel" id="tab-3" data-label="Personal +" hidden>
+    <div class="card aspect-card" data-aspect="personal_plus">
+      <div class="aspect-head">
+        <div>
+          <div class="sec-label">Aspect</div>
+          <h3 class="aspect-name">Personal +ve</h3>
+        </div>
+        <div class="chip-row">
+          <span class="chip accent">AM Personal +ve</span>
+          <span class="chip muted">Personal +</span>
+        </div>
+      </div>
+      <div class="aspect-update">
+        <div class="p-label">Update</div>
+        <p class="update-text">輕量／file-saving；暫無專屬 M1 8G。</p>
+        <div class="meta standing">輕量／file-saving；暫無專機。</div>
+      </div>
+      <div class="aspect-grid">
+        <div>
+          <div class="p-label">AM</div>
+          <p>AM Personal +ve</p>
+        </div>
+        <div>
+          <div class="p-label">Machines</div>
+          <p>暫 on hold 獨佔 M1 Mini 8G（輕量／file-saving）；未分機</p>
+        </div>
+        <div class="span-2">
+          <div class="p-label">Bots</div>
+          <p>Baby Stuff 等 Personal +ve bots、Property</p>
+        </div>
+      </div>
+      <div class="aspect-details">
+        <div class="p-label">Details</div>
+        <ul><li>AM Personal +ve 協調 Baby Stuff 等正面個人 bots。</li><li>機：暫 on hold 獨佔 M1 Mini 8G。</li><li>Aspect 資料／bots／groups 唔互通。</li><li>Property 按揭站：http://127.0.0.1:8892/（ungated）；外網 trycloudflare 無密碼（ephemeral）。</li></ul>
+      </div>
+      <div class="meta">Aspect 資料／bots／groups 唔互通 · 本 pane 只顯示此面</div>
+    </div>
+</div><div class="tab-pane" role="tabpanel" id="tab-4" data-label="Personal −" hidden>
+    <div class="card aspect-card" data-aspect="personal_minus">
+      <div class="aspect-head">
+        <div>
+          <div class="sec-label">Aspect</div>
+          <h3 class="aspect-name">Personal -ve</h3>
+        </div>
+        <div class="chip-row">
+          <span class="chip accent">AM Personal -ve</span>
+          <span class="chip muted">Personal −</span>
+        </div>
+      </div>
+      <div class="aspect-update">
+        <div class="p-label">Update</div>
+        <p class="update-text">專用 M1 Mini 8G（NAS + Drive + 獨立 Apple 帳）。</p>
+        <div class="meta standing">專機：NAS／Google Drive／獨立 Apple 帳。</div>
+      </div>
+      <div class="aspect-grid">
+        <div>
+          <div class="p-label">AM</div>
+          <p>AM Personal -ve</p>
+        </div>
+        <div>
+          <div class="p-label">Machines</div>
+          <p>獨佔一部 M1 Mini 8G（NAS + Google Drive + 獨立 Apple 帳戶）</p>
+        </div>
+        <div class="span-2">
+          <div class="p-label">Bots</div>
+          <p>FB/YT download、PH download、TOPTOON</p>
+        </div>
+      </div>
+      <div class="aspect-details">
+        <div class="p-label">Details</div>
+        <ul><li>AM Personal -ve 協調 FB/YT download、PH download、TOPTOON。</li><li>機：獨佔 M1 Mini 8G，連 NAS、Google Drive、獨立 Apple 帳戶。</li><li>Aspect 資料／bots／groups 唔互通。</li></ul>
+      </div>
+      <div class="meta">Aspect 資料／bots／groups 唔互通 · 本 pane 只顯示此面</div>
+    </div>
+</div>
+    </div>
+  </section>
+  
+<script>
+(function(){
+  var root = document.getElementById('aspect-tabs');
+  if (!root) return;
+  var btns = root.querySelectorAll('.tab-btn');
+  var panes = root.querySelectorAll('.tab-pane');
+  function activate(id){
+    btns.forEach(function(b){
+      var on = b.getAttribute('data-tab') === id;
+      b.classList.toggle('active', on);
+      b.setAttribute('aria-selected', on ? 'true' : 'false');
+    });
+    panes.forEach(function(p){
+      var on = p.id === id;
+      p.classList.toggle('active', on);
+      if (on) p.removeAttribute('hidden'); else p.setAttribute('hidden','');
+    });
+    try { history.replaceState(null,'','#'+id); } catch(e) {}
+  }
+  btns.forEach(function(b){
+    b.addEventListener('click', function(){ activate(b.getAttribute('data-tab')); });
+  });
+  var hash = (location.hash || '').replace(/^#/, '');
+  if (hash && root.querySelector('#'+CSS.escape(hash))) activate(hash);
+})();
+</script>
+
+
+  <h2 class="section-title">Bot dashboards</h2>
+  <div class="table-scroll bots-wrap">
+  <table class="bots">
+    <thead>
+      <tr><th>Bot</th><th>Tailscale (m2-mac-mini) / Local</th><th>GitHub Pages / public</th><th>Notes</th><th>Last seen</th></tr>
+    </thead>
+    <tbody>
+      <tr class="aspect-group aspect-general"><td colspan="5">General</td></tr><tr class="manager-row"><td><strong>AI Manager Summary</strong> <span class="pill">THIS PAGE</span><br><small>Manager</small></td><td><a href="http://m2-mac-mini:8764/">http://m2-mac-mini:8764/</a> · <a href="http://127.0.0.1:8764/">http://127.0.0.1:8764/</a> <span class="st up">[up http=200]</span></td><td><a href="https://algowise-ai.github.io/ai-manager-summary/" target="_blank" rel="noopener">https://algowise-ai.github.io/ai-manager-summary/</a> <span class="st">[http=200]</span></td><td>AI Manager Summary hub. Tailscale m2-mac-mini:8764 + Local :8764 + GitHub Pages. Hourly refresh/serve/pages; 4h+daily highlights.<br><small>launchd: com.algowise.manager.botstatus, com.algowise.manager.strategy-scoreboard, com.algowise.manager.dashboard-index, com.algowise.manager.dashboard-index-http, com.algowise.manager.dashboard-pages, com.algowise.manager.highlight-4h, com.algowise.manager.highlight-daily</small></td><td>2026-11-01 03:35:55 HKT</td></tr><tr><td><strong>Shared (token_gate)</strong><br><small>Shared</small></td><td>—</td><td>—</td><td>Libraries only (token_gate, keep-awake). Not a bot dashboard.</td><td>2026-11-01 03:36:13 HKT</td></tr><tr class="aspect-group aspect-trading"><td colspan="5">Trading</td></tr><tr><td><strong>TG Football Tips</strong><br><small>TG Football Tips</small></td><td><a href="http://m2-mac-mini:8767/">http://m2-mac-mini:8767/</a> · <a href="http://127.0.0.1:8767/">http://127.0.0.1:8767/</a> <span class="st up">[up http=200]</span></td><td><a href="https://algowise-ai.github.io/tg-football-tips/" target="_blank" rel="noopener">https://algowise-ai.github.io/tg-football-tips/</a> <span class="st">[http=200]</span></td><td>Local KeepAlive. Pages hourly --push. Real-bets tab NOT on Pages.<br><small>launchd: com.tiptracker.dashboard, com.tiptracker.dashboard-pages</small></td><td>2026-11-01 03:35:56 HKT</td></tr><tr><td><strong>Tipsme Betting</strong><br><small>Tipsme Betting</small></td><td><a href="http://m2-mac-mini:8770/">http://m2-mac-mini:8770/</a> · <a href="http://127.0.0.1:8770/">http://127.0.0.1:8770/</a> <span class="st up">[up http=200]</span></td><td>—</td><td>Local only. / serves cached overview HTML (&lt;1s); backtest snap avoids 800MB scan.<br><small>launchd: com.algowise.tipsme.dashboard</small></td><td>2026-11-01 03:35:57 HKT</td></tr><tr><td><strong>BettingExpert</strong><br><small>BettingExpert</small></td><td><a href="http://m2-mac-mini:8771/">http://m2-mac-mini:8771/</a> · <a href="http://127.0.0.1:8771/">http://127.0.0.1:8771/</a> <span class="st up">[up http=200]</span></td><td>—</td><td>Local only. Port table: Tipsme 8770 / BE 8771 / Blogabet 8772.<br><small>launchd: com.algowise.bettingexpert.dashboard</small></td><td>2026-11-01 03:35:58 HKT</td></tr><tr><td><strong>Blogabet</strong><br><small>Blogabet</small></td><td><a href="http://m2-mac-mini:8772/">http://m2-mac-mini:8772/</a> · <a href="http://127.0.0.1:8772/">http://127.0.0.1:8772/</a> <span class="st up">[up http=200]</span></td><td>—</td><td>Local dashboard bootstrapped; collector still gated per README.<br><small>launchd: com.algowise.blogabet.dashboard</small></td><td>2026-11-01 03:35:58 HKT</td></tr><tr><td><strong>TG Trading (FX/XAU)</strong><br><small>TG Trading</small></td><td><a href="http://m2-mac-mini:8766/">http://m2-mac-mini:8766/</a> · <a href="http://127.0.0.1:8766/">http://127.0.0.1:8766/</a> <span class="st up">[up http=200]</span></td><td><a href="https://algowise-ai.github.io/tg-trading-dashboard/" target="_blank" rel="noopener">https://algowise-ai.github.io/tg-trading-dashboard/</a> <span class="st">[http=200]</span></td><td>Local KeepAlive :8766 + GitHub Pages every 10 min. Paper metrics only.<br><small>launchd: com.algowise.fxxau.dashboard, com.algowise.fxxau.dashboard-pages</small></td><td>2026-11-01 03:36:00 HKT</td></tr><tr><td><strong>Polymarket V1</strong><br><small>Polymarket</small></td><td><a href="http://m2-mac-mini:8765/dashboard.html">http://m2-mac-mini:8765/dashboard.html</a> · <a href="http://127.0.0.1:8765/dashboard.html">http://127.0.0.1:8765/dashboard.html</a> <span class="st up">[up http=200]</span></td><td><a href="https://algowise-ai.github.io/polymarket-paper-dashboard/" target="_blank" rel="noopener">https://algowise-ai.github.io/polymarket-paper-dashboard/</a> <span class="st">[http=200]</span></td><td>V1 main Live paper books (dual-wing moved to Polymarket Dual Wings). Local serves out/. Pages scrubbed static. Refresh every 60s.<br><small>launchd: com.algowise.polymarket.dashboard, com.algowise.polymarket.dashboard-refresh, com.algowise.polymarket.dashboard-pages</small></td><td>2026-11-01 03:36:01 HKT</td></tr><tr><td><strong>Polymarket Crypto Up / Down</strong><br><small>Polymarket</small></td><td><a href="http://m2-mac-mini:8765/dashboard_v2.html">http://m2-mac-mini:8765/dashboard_v2.html</a> · <a href="http://127.0.0.1:8765/dashboard_v2.html">http://127.0.0.1:8765/dashboard_v2.html</a> <span class="st up">[up http=200]</span><br><a href="http://m2-mac-mini:8765/dashboard_v2_heatmaps.html">http://m2-mac-mini:8765/dashboard_v2_heatmaps.html</a> · <a href="http://127.0.0.1:8765/dashboard_v2_heatmaps.html">http://127.0.0.1:8765/dashboard_v2_heatmaps.html</a> <span class="st up">[up http=200]</span></td><td><a href="https://algowise-ai.github.io/polymarket-paper-dashboard/dashboard_v2.html" target="_blank" rel="noopener">https://algowise-ai.github.io/polymarket-paper-dashboard/dashboard_v2.html</a> <span class="st">[http=200]</span><br><a href="https://algowise-ai.github.io/polymarket-paper-dashboard/dashboard_v2_heatmaps.html" target="_blank" rel="noopener">https://algowise-ai.github.io/polymarket-paper-dashboard/dashboard_v2_heatmaps.html</a> <span class="st">[http=200]</span></td><td>V2 crypto resting-limit cells (coin×window×price @ 80/83/85/88/90/93/95, both sides; cancel opposite on fill). Heatmaps sub-page: interactive Day/Cum grids (not PNG-primary). Finance moved to Polymarket Finance. Same :8765 out/ as V1.<br><small>launchd: com.algowise.polymarket.dashboard, com.algowise.polymarket.dashboard-refresh, com.algowise.polymarket.dashboard-pages</small></td><td>2026-11-01 03:36:04 HKT</td></tr><tr><td><strong>Polymarket Finance</strong><br><small>Polymarket</small></td><td><a href="http://m2-mac-mini:8765/dashboard_finance.html">http://m2-mac-mini:8765/dashboard_finance.html</a> · <a href="http://127.0.0.1:8765/dashboard_finance.html">http://127.0.0.1:8765/dashboard_finance.html</a> <span class="st up">[up http=200]</span></td><td><a href="https://algowise-ai.github.io/polymarket-paper-dashboard/dashboard_finance.html" target="_blank" rel="noopener">https://algowise-ai.github.io/polymarket-paper-dashboard/dashboard_finance.html</a> <span class="st">[http=200]</span></td><td>Finance Daily resting-limit cells (item×price @ 80/83/85/88/90/93/95, both sides; cancel opposite on fill). Same :8765 out/ as V1/V2.<br><small>launchd: com.algowise.polymarket.dashboard, com.algowise.polymarket.dashboard-refresh, com.algowise.polymarket.dashboard-pages</small></td><td>2026-11-01 03:36:05 HKT</td></tr><tr><td><strong>Polymarket Wallet</strong><br><small>Polymarket</small></td><td><a href="http://m2-mac-mini:8769/dashboard_wallet.html">http://m2-mac-mini:8769/dashboard_wallet.html</a> · <a href="http://127.0.0.1:8769/dashboard_wallet.html">http://127.0.0.1:8769/dashboard_wallet.html</a> <span class="st up">[up http=200]</span><br><a href="http://m2-mac-mini:8765/dashboard_wallet.html">http://m2-mac-mini:8765/dashboard_wallet.html</a> · <a href="http://127.0.0.1:8765/dashboard_wallet.html">http://127.0.0.1:8765/dashboard_wallet.html</a> <span class="st up">[up http=200]</span></td><td><a href="https://algowise-ai.github.io/polymarket-paper-dashboard/dashboard_wallet.html" target="_blank" rel="noopener">https://algowise-ai.github.io/polymarket-paper-dashboard/dashboard_wallet.html</a> <span class="st">[http=200]</span></td><td>Phase-1 PAPER small wallet: 6 accounts @ US$100 bankroll / US$1 stake (3 V1 clones + BNB/SOL/ETH 15m 83c). Separate ledgers. No 9395. MagicDNS :8769 + GitHub Pages.<br><small>launchd: com.algowise.polymarket.wallet-dashboard, com.algowise.polymarket.dashboard-refresh, com.algowise.polymarket.dashboard-pages</small></td><td>2026-11-01 03:36:06 HKT</td></tr><tr><td><strong>Polymarket Dual Wings</strong><br><small>Polymarket</small></td><td><a href="http://m2-mac-mini:8774/dashboard_dual_wings.html">http://m2-mac-mini:8774/dashboard_dual_wings.html</a> · <a href="http://127.0.0.1:8774/dashboard_dual_wings.html">http://127.0.0.1:8774/dashboard_dual_wings.html</a> <span class="st up">[up http=200]</span><br><a href="http://m2-mac-mini:8765/dashboard_dual_wings.html">http://m2-mac-mini:8765/dashboard_dual_wings.html</a> · <a href="http://127.0.0.1:8765/dashboard_dual_wings.html">http://127.0.0.1:8765/dashboard_dual_wings.html</a> <span class="st up">[up http=200]</span></td><td><a href="https://algowise-ai.github.io/polymarket-paper-dashboard/dashboard_dual_wings.html" target="_blank" rel="noopener">https://algowise-ai.github.io/polymarket-paper-dashboard/dashboard_dual_wings.html</a> <span class="st">[http=200]</span></td><td>Dual-wing totals PAPER: 13 forward (Over@low+Under@high) + 13 Rev. Split from V1. MagicDNS :8774 + same out/ as :8765. GitHub Pages path when published.<br><small>launchd: com.algowise.polymarket.dual-wings-dashboard, com.algowise.polymarket.dashboard-refresh, com.algowise.polymarket.dashboard-pages</small></td><td>2026-11-01 03:36:07 HKT</td></tr><tr><td><strong>Darwinex Signals (Zero)</strong><br><small>Darwinex Signals</small></td><td><a href="http://m2-mac-mini:8787/">http://m2-mac-mini:8787/</a> · <a href="http://127.0.0.1:8787/">http://127.0.0.1:8787/</a> <span class="st up">[up http=200]</span></td><td>—</td><td>Local Zero dashboard. Separate from Gold sleeve.<br><small>launchd: com.algowise.darwinex.dashboard</small></td><td>2026-11-01 03:36:07 HKT</td></tr><tr><td><strong>Darwinex / Darwinai Gold</strong><br><small>Darwinex Signals</small></td><td><a href="http://m2-mac-mini:8788/">http://m2-mac-mini:8788/</a> · <a href="http://127.0.0.1:8788/">http://127.0.0.1:8788/</a> <span class="st up">[up http=200]</span></td><td><a href="https://algowise-ai.github.io/darwinex-gold-paper-dashboard/" target="_blank" rel="noopener">https://algowise-ai.github.io/darwinex-gold-paper-dashboard/</a> <span class="st">[http=200]</span></td><td>Owns 8788. Myfxbot moved to :8789.<br><small>launchd: com.algowise.darwinex.gold-dashboard, com.algowise.darwinex.gold-dashboard-pages</small></td><td>2026-11-01 03:36:08 HKT</td></tr><tr><td><strong>Crypto Funding</strong><br><small>Crypto Funding</small></td><td>—</td><td>—</td><td>No web dashboard. Strategy jobs + summary MD/CSV only.</td><td>2026-11-01 03:36:08 HKT</td></tr><tr><td><strong>Trading View</strong><br><small>Trading View</small></td><td><a href="http://m2-mac-mini:8768/dashboard.html">http://m2-mac-mini:8768/dashboard.html</a> · <a href="http://127.0.0.1:8768/dashboard.html">http://127.0.0.1:8768/dashboard.html</a> <span class="st up">[up http=200]</span></td><td><a href="https://algowise-ai.github.io/algowise-trading-view-dashboard/" target="_blank" rel="noopener">https://algowise-ai.github.io/algowise-trading-view-dashboard/</a> <span class="st">[http=200]</span></td><td>Paper metrics only on Pages.<br><small>launchd: com.algowise.trading-view.dashboard-local, com.algowise.trading-view.dashboard, com.algowise.trading-view.dashboard-pages</small></td><td>2026-11-01 03:36:08 HKT</td></tr><tr><td><strong>Horse Racing Research (HKJC)</strong><br><small>Horse Racing Research</small></td><td>—</td><td>—</td><td>Pipeline / research only. No dedicated dashboard (PM HKJC paper lives under Polymarket).</td><td>2026-11-01 03:36:08 HKT</td></tr><tr><td><strong>Options Theta</strong><br><small>Options Theta</small></td><td>—</td><td>—</td><td>Pipeline only. LaunchAgents retired/paused in backups.</td><td>2026-11-01 03:36:08 HKT</td></tr><tr><td><strong>MT4 Monitor</strong><br><small>MT4 Monitor</small></td><td>—</td><td>—</td><td>Read-only drop-folder monitor → out/*.md/json. No HTTP UI.<br><small>launchd: com.algowise.mt4.monitor</small></td><td>2026-11-01 03:36:09 HKT</td></tr><tr><td><strong>Myfxbot Dashboard</strong><br><small>myfxbot-dashboard</small></td><td><a href="http://m2-mac-mini:8789/">http://m2-mac-mini:8789/</a> · <a href="http://127.0.0.1:8789/">http://127.0.0.1:8789/</a> <span class="st up">[up http=root=err;health=200]</span></td><td>—</td><td>Local uvicorn :8789 (Gold keeps :8788). launchd com.algowise.myfxbot.dashboard.<br><small>launchd: com.algowise.myfxbot.dashboard</small></td><td>2026-11-01 03:36:13 HKT</td></tr><tr><td><strong>Axi Select</strong><br><small>Axi Select</small></td><td><a href="http://m2-mac-mini:8773/">http://m2-mac-mini:8773/</a> · <a href="http://127.0.0.1:8773/">http://127.0.0.1:8773/</a> <span class="st up">[up http=200]</span></td><td>—</td><td>Year-goal #22 collecting. MagicDNS m2-mac-mini:8773 + Local :8773. Phase 1 paper/monitor; MT4/MT5 EA deferred to Windows mini.<br><small>launchd: com.algowise.axi-select.dashboard</small></td><td>2026-11-01 03:36:13 HKT</td></tr><tr><td><strong>Strategies (pool)</strong><br><small>Strategies</small></td><td>—</td><td>—</td><td>us-index-meanrev / gold-fx-trend / crypto_funding_arb / hkjc-racing / etc. No shared web UI.</td><td>2026-11-01 03:36:13 HKT</td></tr><tr class="aspect-group aspect-work"><td colspan="5">Work</td></tr><tr><td><strong>WSD ME Career</strong><br><small>WSD ME Career</small></td><td><a href="http://m2-mac-mini:8899/">http://m2-mac-mini:8899/</a> · <a href="http://127.0.0.1:8899/">http://127.0.0.1:8899/</a> <span class="st up">[up http=200]</span></td><td><a href="https://cap-worship-amenities-webshots.trycloudflare.com/" target="_blank" rel="noopener">https://cap-worship-amenities-webshots.trycloudflare.com/</a> <span class="st">[http=err]</span></td><td>Personal ME salary estimator. Local :8899 ungated; public Cloudflare tunnel password 8899 (temp; M2/tunnel down = offline). Prefer GitHub Pages later for stable URL.</td><td>2026-11-01 03:36:13 HKT</td></tr><tr class="aspect-group aspect-plus"><td colspan="5">Personal +</td></tr><tr><td><strong>Carousell Tracker</strong><br><small>Carousell Tracker</small></td><td>—</td><td>—</td><td>Collector/scanner; no web UI.<br><small>launchd: com.algowise.carousell-tracker</small></td><td>2026-11-01 03:36:08 HKT</td></tr><tr><td><strong>Baby Stuff</strong><br><small>Baby Stuff</small></td><td><a href="http://m2-mac-mini:8891/">http://m2-mac-mini:8891/</a> · <a href="http://127.0.0.1:8891/">http://127.0.0.1:8891/</a> <span class="st up">[up http=200]</span></td><td><a href="https://algowise-ai.github.io/baby-stuff-summary/" target="_blank" rel="noopener">https://algowise-ai.github.io/baby-stuff-summary/</a> <span class="st">[http=200]</span></td><td>Personal +ve school/budget summary. Local :8891 ungated; GitHub Pages no password.<br><small>launchd: com.algowise.baby-stuff.digest, com.algowise.baby-stuff.dashboard</small></td><td>2026-11-01 03:36:09 HKT</td></tr><tr><td><strong>Property</strong><br><small>Property</small></td><td><a href="http://m2-mac-mini:8892/">http://m2-mac-mini:8892/</a> · <a href="http://127.0.0.1:8892/">http://127.0.0.1:8892/</a> <span class="st up">[up http=200]</span></td><td><a href="https://accountability-tyler-edwards-eyed.trycloudflare.com/" target="_blank" rel="noopener">https://accountability-tyler-edwards-eyed.trycloudflare.com/</a> <span class="st">[http=err]</span></td><td>Mortgage calc + estate explore + buy/rent HK/ML + GBA retirement. Local :8892 ungated; public trycloudflare NO password (ephemeral).<br><small>launchd: com.algowise.property.digest</small></td><td>2026-11-01 03:36:13 HKT</td></tr><tr class="aspect-group aspect-minus"><td colspan="5">Personal −</td></tr><tr class="aspect-empty"><td colspan="5" class="muted">（暫無）</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h2 class="section-title">Shares — repos / MD / Pages</h2>
+  <div class="table-scroll shares-wrap">
+  <table>
+    <thead>
+      <tr><th>Repo / MD</th><th>Shared with</th><th>How</th><th>Link</th><th>Notes</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>AI Manager Summary Pages<br><small>algowise-ai/ai-manager-summary</small></td><td>public (anyone on the internet)</td><td>GitHub Pages public</td><td><a href="https://algowise-ai.github.io/ai-manager-summary/" target="_blank" rel="noopener">https://algowise-ai.github.io/ai-manager-summary/</a></td><td>Static scrubbed paper dashboard; no secrets.</td></tr><tr><td>TG Football Tips Pages<br><small>algowise-ai/tg-football-tips</small></td><td>public (anyone on the internet)</td><td>GitHub Pages public</td><td><a href="https://algowise-ai.github.io/tg-football-tips/" target="_blank" rel="noopener">https://algowise-ai.github.io/tg-football-tips/</a></td><td>Static scrubbed paper dashboard; no secrets.</td></tr><tr><td>TG Trading Pages<br><small>algowise-ai/tg-trading-dashboard</small></td><td>public (anyone on the internet)</td><td>GitHub Pages public</td><td><a href="https://algowise-ai.github.io/tg-trading-dashboard/" target="_blank" rel="noopener">https://algowise-ai.github.io/tg-trading-dashboard/</a></td><td>Static scrubbed paper dashboard; no secrets.</td></tr><tr><td>Polymarket V1 paper Pages<br><small>algowise-ai/polymarket-paper-dashboard</small></td><td>public (anyone on the internet)</td><td>GitHub Pages public</td><td><a href="https://algowise-ai.github.io/polymarket-paper-dashboard/" target="_blank" rel="noopener">https://algowise-ai.github.io/polymarket-paper-dashboard/</a></td><td>Static scrubbed paper dashboard; no secrets.</td></tr><tr><td>Polymarket Crypto Up / Down paper Pages<br><small>algowise-ai/polymarket-paper-dashboard</small></td><td>public (anyone on the internet)</td><td>GitHub Pages public</td><td><a href="https://algowise-ai.github.io/polymarket-paper-dashboard/dashboard_v2.html" target="_blank" rel="noopener">https://algowise-ai.github.io/polymarket-paper-dashboard/dashboard_v2.html</a></td><td>Static scrubbed paper dashboard; no secrets.</td></tr><tr><td>Polymarket Finance paper Pages<br><small>algowise-ai/polymarket-paper-dashboard</small></td><td>public (anyone on the internet)</td><td>GitHub Pages public</td><td><a href="https://algowise-ai.github.io/polymarket-paper-dashboard/dashboard_finance.html" target="_blank" rel="noopener">https://algowise-ai.github.io/polymarket-paper-dashboard/dashboard_finance.html</a></td><td>Static scrubbed paper dashboard; no secrets.</td></tr><tr><td>Polymarket Wallet paper Pages<br><small>algowise-ai/polymarket-paper-dashboard</small></td><td>public (anyone on the internet)</td><td>GitHub Pages public</td><td><a href="https://algowise-ai.github.io/polymarket-paper-dashboard/dashboard_wallet.html" target="_blank" rel="noopener">https://algowise-ai.github.io/polymarket-paper-dashboard/dashboard_wallet.html</a></td><td>Static scrubbed paper dashboard; no secrets.</td></tr><tr><td>Polymarket Dual Wings paper Pages<br><small>algowise-ai/polymarket-paper-dashboard</small></td><td>public (anyone on the internet)</td><td>GitHub Pages public</td><td><a href="https://algowise-ai.github.io/polymarket-paper-dashboard/dashboard_dual_wings.html" target="_blank" rel="noopener">https://algowise-ai.github.io/polymarket-paper-dashboard/dashboard_dual_wings.html</a></td><td>Static scrubbed paper dashboard; no secrets.</td></tr><tr><td>Darwinex Gold Pages<br><small>algowise-ai/darwinex-gold-paper-dashboard</small></td><td>public (anyone on the internet)</td><td>GitHub Pages public</td><td><a href="https://algowise-ai.github.io/darwinex-gold-paper-dashboard/" target="_blank" rel="noopener">https://algowise-ai.github.io/darwinex-gold-paper-dashboard/</a></td><td>Static scrubbed paper dashboard; no secrets.</td></tr><tr><td>Trading View Pages<br><small>algowise-ai/algowise-trading-view-dashboard</small></td><td>public (anyone on the internet)</td><td>GitHub Pages public</td><td><a href="https://algowise-ai.github.io/algowise-trading-view-dashboard/" target="_blank" rel="noopener">https://algowise-ai.github.io/algowise-trading-view-dashboard/</a></td><td>Static scrubbed paper dashboard; no secrets.</td></tr><tr><td>Baby Stuff Pages<br><small>algowise-ai/baby-stuff-summary</small></td><td>public (anyone on the internet)</td><td>GitHub Pages public</td><td><a href="https://algowise-ai.github.io/baby-stuff-summary/" target="_blank" rel="noopener">https://algowise-ai.github.io/baby-stuff-summary/</a></td><td>Static scrubbed paper dashboard; no secrets.</td></tr><tr><td>WSD ME Career (Cloudflare tunnel)<br><small>cloudflare-tunnel-temp</small> <span class="warn">UNCERTAIN</span></td><td>public (anyone on the internet; password gate)</td><td>Cloudflare quick tunnel (temporary)</td><td><a href="https://cap-worship-amenities-webshots.trycloudflare.com/" target="_blank" rel="noopener">https://cap-worship-amenities-webshots.trycloudflare.com/</a></td><td>Password 8899. Temp trycloudflare URL; dies when M2/tunnel stops. Local remains http://127.0.0.1:8899/ ungated.</td></tr><tr><td>Polymarket strategy keep-record (MD)<br><small>algowise-ai/polymarket-strategy-notes</small></td><td>(see collaborators)</td><td>GitHub public repo</td><td><a href="https://github.com/algowise-ai/polymarket-strategy-notes" target="_blank" rel="noopener">https://github.com/algowise-ai/polymarket-strategy-notes</a></td><td>REGISTRY.md + books/ weekly/. Not a live dashboard.</td></tr><tr><td>BETTING_HANDOFF.md<br><small>TG Football Tips/handoff/BETTING_HANDOFF.md</small></td><td>TG Betting Tips bot / internal handoff</td><td>Bot / file handoff (local MD)</td><td><code>file://(local)/TG Football Tips/handoff/BETTING_HANDOFF.md</code></td><td>Mentions planned tips.algowise.co (Firebase) — not live.</td></tr><tr><td>tips.algowise.co (planned)<br><small>TG Football Tips/handoff/BETTING_HANDOFF.md</small> <span class="warn">UNCERTAIN</span></td><td>planned public DNS</td><td>Firebase Hosting (planned, not deployed)</td><td><a href="https://tips.algowise.co/" target="_blank" rel="noopener">https://tips.algowise.co/</a></td><td>Documented 2026-09-22 handoff; DNS/Firebase pending. UNCERTAIN / not verified live.</td></tr><tr><td>GitHub collab:polymarket-paper-dashboard<br><small>algowise-ai/polymarket-paper-dashboard</small></td><td>emillaii</td><td>GitHub collab (write)</td><td><a href="https://github.com/algowise-ai/polymarket-paper-dashboard" target="_blank" rel="noopener">https://github.com/algowise-ai/polymarket-paper-dashboard</a></td><td>login=emillaii role=write</td></tr><tr><td>GitHub collab:polymarket-strategy-notes<br><small>algowise-ai/polymarket-strategy-notes</small></td><td>emillaii</td><td>GitHub collab (write)</td><td><a href="https://github.com/algowise-ai/polymarket-strategy-notes" target="_blank" rel="noopener">https://github.com/algowise-ai/polymarket-strategy-notes</a></td><td>login=emillaii role=write</td></tr><tr><td>GitHub collab:tg-football-tips<br><small>algowise-ai/tg-football-tips</small></td><td>emillaii</td><td>GitHub collab (write)</td><td><a href="https://github.com/algowise-ai/tg-football-tips" target="_blank" rel="noopener">https://github.com/algowise-ai/tg-football-tips</a></td><td>login=emillaii role=write</td></tr><tr><td>GitHub collab:darwinex-gold-paper-dashboard<br><small>algowise-ai/darwinex-gold-paper-dashboard</small></td><td>algowise-ai only (no external collaborators)</td><td>GitHub collab</td><td><a href="https://github.com/algowise-ai/darwinex-gold-paper-dashboard" target="_blank" rel="noopener">https://github.com/algowise-ai/darwinex-gold-paper-dashboard</a></td><td>Repo is public → world-readable; no write collabs besides owner.</td></tr><tr><td>GitHub collab:algowise-trading-view-dashboard<br><small>algowise-ai/algowise-trading-view-dashboard</small></td><td>algowise-ai only (no external collaborators)</td><td>GitHub collab</td><td><a href="https://github.com/algowise-ai/algowise-trading-view-dashboard" target="_blank" rel="noopener">https://github.com/algowise-ai/algowise-trading-view-dashboard</a></td><td>Repo is public → world-readable; no write collabs besides owner.</td></tr><tr><td>Google Drive / Bot template / Grok Bot share links<br><small>(searched under (local))</small> <span class="warn">UNCERTAIN</span></td><td>—</td><td>Drive / Bot share</td><td>—</td><td>No SHARE.md, Drive URLs, or Grok Bot share-link registry found in active trees (excluding _backup/.venv). Add rows here when shares are created.</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <p class="foot">
+    Tailscale: <a href="http://m2-mac-mini:8764/">http://m2-mac-mini:8764/</a>
+    · Local: <a href="http://127.0.0.1:8764/">http://127.0.0.1:8764/</a>
+    · Public: <a href="https://algowise-ai.github.io/ai-manager-summary/" target="_blank" rel="noopener">https://algowise-ai.github.io/ai-manager-summary/</a><br/>
+    Refresh: <code>refresh_dashboard_index.py</code> (hourly) · Pages: <code>bin/dashboard_publish.sh --push</code> · Highlights: write_highlight.py --kind 4h|daily
+  </p>
+</main>
+</div>
+<!-- algowise-theme -->
+<script>
+/*! Algowise shared theme: system (prefers-color-scheme) default + manual light/dark/system. localStorage key: algowise-theme */
+(function () {
+  if (window.__ALGOWISE_THEME__) return;
+  window.__ALGOWISE_THEME__ = true;
+  var KEY = "algowise-theme";
+  var MODES = ["system", "light", "dark"];
+  var LABELS = { system: "System", light: "Light", dark: "Dark" };
+  var ICONS = {
+    system: '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><rect x="3" y="4" width="18" height="12" rx="2" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M8 20h8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M12 16v4" stroke="currentColor" stroke-width="1.8"/></svg>',
+    light: '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12 2v2.5M12 19.5V22M4.2 4.2l1.8 1.8M18 18l1.8 1.8M2 12h2.5M19.5 12H22M4.2 19.8l1.8-1.8M18 6l1.8-1.8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>',
+    dark: '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M18 13.5A7.5 7.5 0 0 1 10.5 6 6 6 0 1 0 18 13.5z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>'
+  };
+
+  function systemDark() {
+    try { return window.matchMedia("(prefers-color-scheme: dark)").matches; } catch (e) { return true; }
+  }
+  function readMode() {
+    try {
+      var m = localStorage.getItem(KEY);
+      if (MODES.indexOf(m) >= 0) return m;
+    } catch (e) {}
+    return "system";
+  }
+  function resolved(mode) {
+    if (mode === "light") return "light";
+    if (mode === "dark") return "dark";
+    return systemDark() ? "dark" : "light";
+  }
+  function apply(mode) {
+    var m = MODES.indexOf(mode) >= 0 ? mode : "system";
+    var r = resolved(m);
+    document.documentElement.setAttribute("data-theme", m);
+    document.documentElement.setAttribute("data-theme-resolved", r);
+    try { localStorage.setItem(KEY, m); } catch (e) {}
+    var btn = document.getElementById("algowise-theme-btn");
+    if (btn) {
+      btn.innerHTML = ICONS[m] || ICONS.system;
+      btn.setAttribute("aria-label", "Theme: " + (LABELS[m] || m) + " (click to cycle)");
+      btn.title = "Theme: " + (LABELS[m] || m) + " · click → light / dark / system";
+    }
+    var menu = document.getElementById("algowise-theme-menu");
+    if (menu) {
+      Array.prototype.forEach.call(menu.querySelectorAll("[data-mode]"), function (el) {
+        el.setAttribute("aria-checked", el.getAttribute("data-mode") === m ? "true" : "false");
+      });
+    }
+  }
+  function nextMode(cur) {
+    var i = MODES.indexOf(cur);
+    return MODES[(i + 1) % MODES.length];
+  }
+  function ensureCss() {
+    if (document.getElementById("algowise-theme-css")) return;
+    var css = document.createElement("style");
+    css.id = "algowise-theme-css";
+    css.textContent = [
+      /* ---- Light: layered surfaces (not pure #fff everywhere) + soft elevation ---- */
+      'html[data-theme-resolved="light"]{',
+      '--bg:#e6ebf4;',
+      '--card:#fbfcfe;',
+      '--panel:#f0f4fa;',
+      '--panel-2:#e8eef7;',
+      '--text:#0a1220;',
+      '--muted:#3d4f66;',
+      '--accent:#1d4ed8;',
+      '--ok:#047857;',
+      '--bad:#b91c1c;',
+      '--warn:#b45309;',
+      '--border:#b8c4d6;',
+      '--border-soft:#c5d0e0;',
+      '--header-bg:#d5dee9;',
+      '--code-bg:#dbe3ee;',
+      '--surface:#dbe3ee;',
+      '--chip-bg:#d0dcf0;',
+      '--inset:#dfe6f0;',
+      '--chart-track:#c5d0e0;',
+      '--chart-1:#1d4ed8;',
+      '--chart-2:#047857;',
+      '--chart-3:#7c3aed;',
+      '--chart-4:#0e7490;',
+      '--chart-5:#c2410c;',
+      '--chart-6:#334155;',
+      '--blue:#1d4ed8;',
+      '--green:#047857;',
+      '--amber:#b45309;',
+      '--red:#b91c1c;',
+      '--pos:#047857;',
+      '--neg:#b91c1c;',
+      '--shadow:0 1px 2px rgba(15,23,42,.06);',
+      '--shadow-md:0 2px 8px rgba(15,23,42,.08);',
+      '--shadow-lg:0 6px 18px rgba(15,23,42,.10);',
+      'color-scheme:light;}',
+      /* ---- Dark: keep existing feel; unify shadow tokens ---- */
+      'html[data-theme-resolved="dark"]{',
+      '--bg:#0f1419;',
+      '--card:#1a2332;',
+      '--panel:#151922;',
+      '--panel-2:#182030;',
+      '--text:#e7ecf3;',
+      '--muted:#8b9bb4;',
+      '--accent:#3d8bfd;',
+      '--ok:#3dd68c;',
+      '--bad:#f87171;',
+      '--warn:#fbbf24;',
+      '--border:#243044;',
+      '--border-soft:#1c2a3d;',
+      '--header-bg:#152033;',
+      '--code-bg:#0b1220;',
+      '--surface:#0b1220;',
+      '--chip-bg:#1a2f4a;',
+      '--inset:#0b1220;',
+      '--chart-track:#1c2a3d;',
+      '--chart-1:#3d8bfd;',
+      '--chart-2:#3dd68c;',
+      '--chart-3:#a78bfa;',
+      '--chart-4:#67e8f9;',
+      '--chart-5:#fbbf24;',
+      '--chart-6:#64748b;',
+      '--blue:#59c2ff;',
+      '--green:#3dd68c;',
+      '--amber:#e6b450;',
+      '--red:#f07178;',
+      '--pos:#3dd68c;',
+      '--neg:#f07178;',
+      '--shadow:0 1px 0 rgba(255,255,255,.03);',
+      '--shadow-md:0 4px 14px rgba(0,0,0,.22);',
+      '--shadow-lg:0 8px 24px rgba(0,0,0,.32);',
+      'color-scheme:dark;}',
+      /* Base body */
+      'html[data-theme-resolved="light"] body,html[data-theme-resolved="dark"] body{background:var(--bg)!important;color:var(--text)!important;}',
+      /* Light: raise label/meta contrast; keep graphs readable */
+      'html[data-theme-resolved="light"] .meta,html[data-theme-resolved="light"] .muted,html[data-theme-resolved="light"] .sec-label,html[data-theme-resolved="light"] .kpi .lbl,html[data-theme-resolved="light"] .kpi .den,html[data-theme-resolved="light"] .mcard-h,html[data-theme-resolved="light"] .mcard-meta,html[data-theme-resolved="light"] .p-label,html[data-theme-resolved="light"] .bar-lab,html[data-theme-resolved="light"] .bar-pct,html[data-theme-resolved="light"] .ring-s,html[data-theme-resolved="light"] .stack-leg,html[data-theme-resolved="light"] th,html[data-theme-resolved="light"] .stat .k,html[data-theme-resolved="light"] .card .row{color:var(--muted)!important;}',
+      'html[data-theme-resolved="light"] h1,html[data-theme-resolved="light"] h2,html[data-theme-resolved="light"] h3,html[data-theme-resolved="light"] .kpi .n:not(.pos):not(.neg),html[data-theme-resolved="light"] .mcard-n:not(.pos):not(.neg),html[data-theme-resolved="light"] .ring-n,html[data-theme-resolved="light"] .aspect-name,html[data-theme-resolved="light"] .stat .v:not(.pos):not(.neg){color:var(--text)!important;}',
+      'html[data-theme-resolved="light"] a{color:var(--accent)!important;}',
+      'html[data-theme-resolved="light"] .col-hl h4{color:var(--ok)!important;}',
+      'html[data-theme-resolved="light"] .col-deliv h4{color:var(--accent)!important;}',
+      'html[data-theme-resolved="light"] .pos,html[data-theme-resolved="light"] .kpi .n.pos,html[data-theme-resolved="light"] .stat .v.pos,html[data-theme-resolved="light"] td.pos,html[data-theme-resolved="light"] .num.pos,html[data-theme-resolved="light"] strong.pos,html[data-theme-resolved="light"] .v.pos,.pos{color:var(--pos,var(--green,var(--ok)))!important;}',
+      'html[data-theme-resolved="light"] .neg,html[data-theme-resolved="light"] .kpi .n.neg,html[data-theme-resolved="light"] .stat .v.neg,html[data-theme-resolved="light"] td.neg,html[data-theme-resolved="light"] .num.neg,html[data-theme-resolved="light"] strong.neg,html[data-theme-resolved="light"] .v.neg,.neg{color:var(--neg,var(--red,var(--bad)))!important;}',
+      'html[data-theme-resolved="dark"] .pos,html[data-theme-resolved="dark"] .kpi .n.pos,html[data-theme-resolved="dark"] .stat .v.pos,html[data-theme-resolved="dark"] td.pos,html[data-theme-resolved="dark"] .num.pos,html[data-theme-resolved="dark"] strong.pos,.pos{color:var(--pos,var(--green,var(--ok)))!important;}',
+      'html[data-theme-resolved="dark"] .neg,html[data-theme-resolved="dark"] .kpi .n.neg,html[data-theme-resolved="dark"] .stat .v.neg,html[data-theme-resolved="dark"] td.neg,html[data-theme-resolved="dark"] .num.neg,html[data-theme-resolved="dark"] strong.neg,.neg{color:var(--neg,var(--red,var(--bad)))!important;}',
+      'html[data-theme-resolved="light"] .st.up{color:var(--ok)!important;}',
+      'html[data-theme-resolved="light"] .st.down,html[data-theme-resolved="light"] .st.conflict{color:var(--bad)!important;}',
+      'html[data-theme-resolved="light"] .st.listening{color:var(--warn)!important;}',
+      'html[data-theme-resolved="light"] .ring{background:conic-gradient(var(--c,var(--chart-1)) calc(var(--p)*1%), var(--chart-track) 0)!important;}',
+      'html[data-theme-resolved="light"] .bar .fill{background:linear-gradient(90deg,var(--chart-1),var(--chart-2))!important;}',
+      'html[data-theme-resolved="light"] .bar .fill.warn{background:linear-gradient(90deg,#d97706,var(--warn))!important;}',
+      'html[data-theme-resolved="light"] .bar .fill.bad{background:linear-gradient(90deg,#dc2626,var(--bad))!important;}',
+      'html[data-theme-resolved="light"] .bar .fill.accent{background:linear-gradient(90deg,#1e40af,var(--chart-1))!important;}',
+      'html[data-theme-resolved="light"] .bar .fill.ok{background:linear-gradient(90deg,#065f46,var(--chart-2))!important;}',
+      'html[data-theme-resolved="light"] .stack-seg.pl,html[data-theme-resolved="light"] .stack-leg i.pl{background:var(--chart-2)!important;}',
+      'html[data-theme-resolved="light"] .stack-seg.col,html[data-theme-resolved="light"] .stack-leg i.col{background:var(--chart-1)!important;}',
+      'html[data-theme-resolved="light"] .stack-seg.bt,html[data-theme-resolved="light"] .stack-leg i.bt{background:var(--chart-3)!important;}',
+      'html[data-theme-resolved="light"] .stack-seg.ro,html[data-theme-resolved="light"] .stack-leg i.ro{background:var(--chart-4)!important;}',
+      'html[data-theme-resolved="light"] .stack-seg.ret,html[data-theme-resolved="light"] .stack-leg i.ret{background:var(--chart-6)!important;}',
+      'html[data-theme-resolved="light"] .stack-seg.oth,html[data-theme-resolved="light"] .stack-leg i.oth{background:#64748b!important;}',
+      'html[data-theme-resolved="light"] .stack-seg.bad{background:var(--bad)!important;}',
+      'html[data-theme-resolved="light"] .stack-seg.warn{background:var(--warn)!important;}',
+      'html[data-theme-resolved="light"] svg text,html[data-theme-resolved="light"] .chart text,html[data-theme-resolved="light"] .heatmap text{fill:var(--text)!important;}',
+      'html[data-theme-resolved="light"] svg .grid line,html[data-theme-resolved="light"] .chart .grid{stroke:var(--border)!important;opacity:.9;}',
+      /* Soften common heavy dark-mode card shadows in light */
+      'html[data-theme-resolved="light"] .card,html[data-theme-resolved="light"] .panel,html[data-theme-resolved="light"] .track-panel,html[data-theme-resolved="light"] .mcard,html[data-theme-resolved="light"] .kpi{box-shadow:var(--shadow)!important;}',
+      /* Light-mode remaps for dashboards that still hard-code dark hex surfaces */
+      'html[data-theme-resolved="light"] header{background:linear-gradient(180deg,var(--header-bg) 0%,var(--bg) 100%)!important;border-bottom-color:var(--border)!important;}',
+      'html[data-theme-resolved="light"] .topbar{background:rgba(247,249,252,.92)!important;border-bottom-color:var(--border)!important;color:var(--text)!important;}',
+      'html[data-theme-resolved="light"] table{border-color:var(--border)!important;}',
+      'html[data-theme-resolved="light"] th,html[data-theme-resolved="light"] td{border-bottom-color:var(--border-soft)!important;}',
+      'html[data-theme-resolved="light"] th{background:var(--header-bg)!important;}',
+      'html[data-theme-resolved="light"] code{background:var(--code-bg)!important;color:var(--text)!important;}',
+      'html[data-theme-resolved="light"] .card{border-color:var(--border)!important;box-shadow:var(--shadow)!important;}',
+      'html[data-theme-resolved="light"] .card.sub{background:var(--panel)!important;}',
+      'html[data-theme-resolved="light"] .card.goal{border-color:#93c5fd!important;background:linear-gradient(165deg,#e8f0fc 0%,var(--card) 55%)!important;}',
+      'html[data-theme-resolved="light"] .kpi,html[data-theme-resolved="light"] .mcard,html[data-theme-resolved="light"] .aspect-update,html[data-theme-resolved="light"] .ring-inner,html[data-theme-resolved="light"] .bar,html[data-theme-resolved="light"] .stack{background:var(--inset)!important;border-color:var(--border-soft)!important;}',
+      'html[data-theme-resolved="light"] .ring{box-shadow:inset 0 0 0 1px var(--border)!important;}',
+      'html[data-theme-resolved="light"] .chip{background:var(--chip-bg)!important;border-color:var(--border)!important;}',
+      'html[data-theme-resolved="light"] .chip.ok{background:#d1fae5!important;color:#047857!important;border-color:#a7f3d0!important;}',
+      'html[data-theme-resolved="light"] .chip.warn{background:#fef3c7!important;color:#b45309!important;border-color:#fde68a!important;}',
+      'html[data-theme-resolved="light"] .chip.bad{background:#fee2e2!important;color:#b91c1c!important;border-color:#fecaca!important;}',
+      'html[data-theme-resolved="light"] .chip.muted{background:var(--panel)!important;color:var(--muted)!important;border-color:var(--border-soft)!important;}',
+      'html[data-theme-resolved="light"] .chip.item{background:var(--card)!important;border-color:var(--border)!important;color:var(--text)!important;}',
+      'html[data-theme-resolved="light"] .badge.local{background:#d1fae5!important;color:#047857!important;}',
+      'html[data-theme-resolved="light"] .badge.public{background:#dbeafe!important;color:#1d4ed8!important;}',
+      'html[data-theme-resolved="light"] .pill{background:var(--chip-bg)!important;color:var(--accent)!important;}',
+      'html[data-theme-resolved="light"] .tab-bar{background:var(--surface)!important;border-color:var(--border)!important;}',
+      'html[data-theme-resolved="light"] .tab-btn.aspect-general{--tab-fg:#111;--tab-soft:rgba(17,17,17,.08);}',
+      'html[data-theme-resolved="light"] .tab-btn.aspect-trading{--tab-fg:#5b21b6;--tab-soft:rgba(139,92,246,.14);}',
+      'html[data-theme-resolved="light"] .tab-btn.aspect-work{--tab-fg:#1d4ed8;--tab-soft:rgba(59,130,246,.14);}',
+      'html[data-theme-resolved="light"] details.daily-fold,html[data-theme-resolved="light"] details.hist-fold{border-color:var(--border)!important;}',
+      'html[data-theme-resolved="light"] table.bots tr.manager-row{background:#e8f0fc!important;}',
+      'html[data-theme-resolved="light"] table.bots tr.manager-row td{border-bottom-color:#93c5fd!important;}',
+      'html[data-theme-resolved="light"] table.bots tr.aspect-group td{background:var(--header-bg)!important;border-bottom-color:var(--border)!important;}',
+      'html[data-theme-resolved="light"] .col-hl h4{color:#047857!important;}',
+      'html[data-theme-resolved="light"] .col-deliv h4{color:#1d4ed8!important;}',
+      /* Pull-down / select / theme-menu (light+dark) */
+      'select,.filters select,.period-bar select,.allfund-toolbar select,select.input,select.form-control{',
+      'background:var(--card,#1a2332);color:var(--text,#e7ecf3);border:1px solid var(--border,#243044);',
+      'border-radius:8px;color-scheme:inherit;}',
+      'select option,select optgroup,option{background:var(--card,#1a2332);color:var(--text,#e7ecf3);}',
+      'html[data-theme-resolved="light"] select,',
+      'html[data-theme-resolved="light"] .filters select,',
+      'html[data-theme-resolved="light"] .period-bar select,',
+      'html[data-theme-resolved="light"] .allfund-toolbar select,',
+      'html[data-theme-resolved="light"] select.input,',
+      'html[data-theme-resolved="light"] select.form-control,',
+      'html[data-theme-resolved="light"] .tabs select,',
+      'html[data-theme-resolved="light"] .toolbar select,',
+      'html[data-theme-resolved="light"] .controls select{',
+      'background:var(--card,#fbfcfe)!important;color:var(--text,#0a1220)!important;',
+      'border-color:var(--border,#b8c4d6)!important;color-scheme:light!important;',
+      'box-shadow:var(--shadow)!important;}',
+      'html[data-theme-resolved="light"] select:hover,',
+      'html[data-theme-resolved="light"] .filters select:hover{border-color:var(--accent,#1d4ed8)!important;}',
+      'html[data-theme-resolved="light"] select:focus,',
+      'html[data-theme-resolved="light"] .filters select:focus{outline:2px solid var(--accent,#1d4ed8)!important;outline-offset:1px;}',
+      'html[data-theme-resolved="light"] select option,',
+      'html[data-theme-resolved="light"] select optgroup,',
+      'html[data-theme-resolved="light"] option{',
+      'background:var(--card,#fbfcfe)!important;color:var(--text,#0a1220)!important;}',
+      'html[data-theme-resolved="light"] select option:checked,',
+      'html[data-theme-resolved="light"] select option:hover{',
+      'background:var(--surface,#dbe3ee)!important;color:var(--text,#0a1220)!important;}',
+      /* Native datalist / menu-ish panels */
+      'html[data-theme-resolved="light"] .dropdown,',
+      'html[data-theme-resolved="light"] .dropdown-menu,',
+      'html[data-theme-resolved="light"] .menu,',
+      'html[data-theme-resolved="light"] .pull-down,',
+      'html[data-theme-resolved="light"] .popover,',
+      'html[data-theme-resolved="light"] [role="menu"],',
+      'html[data-theme-resolved="light"] [role="listbox"]{',
+      'background:var(--card,#fbfcfe)!important;color:var(--text,#0a1220)!important;',
+      'border:1px solid var(--border,#b8c4d6)!important;box-shadow:var(--shadow-lg)!important;}',
+      'html[data-theme-resolved="light"] .dropdown a,',
+      'html[data-theme-resolved="light"] .dropdown-menu a,',
+      'html[data-theme-resolved="light"] .menu a,',
+      'html[data-theme-resolved="light"] [role="menuitem"],',
+      'html[data-theme-resolved="light"] [role="option"]{',
+      'color:var(--text,#0a1220)!important;}',
+      'html[data-theme-resolved="light"] .dropdown a:hover,',
+      'html[data-theme-resolved="light"] .dropdown-menu a:hover,',
+      'html[data-theme-resolved="light"] .menu a:hover,',
+      'html[data-theme-resolved="light"] [role="menuitem"]:hover,',
+      'html[data-theme-resolved="light"] [role="option"]:hover{',
+      'background:var(--surface,#dbe3ee)!important;color:var(--text,#0a1220)!important;}',
+      /* Theme picker pull-down — force light-readable panel */
+      'html[data-theme-resolved="light"] #algowise-theme-btn{',
+      'background:var(--card,#fbfcfe)!important;color:var(--text,#0a1220)!important;',
+      'border-color:var(--border,#b8c4d6)!important;box-shadow:var(--shadow)!important;}',
+      'html[data-theme-resolved="light"] #algowise-theme-menu{',
+      'background:var(--card,#fbfcfe)!important;color:var(--text,#0a1220)!important;',
+      'border-color:var(--border,#b8c4d6)!important;box-shadow:var(--shadow-lg)!important;}',
+      'html[data-theme-resolved="light"] #algowise-theme-menu button{',
+      'color:var(--text,#0a1220)!important;background:transparent!important;}',
+      'html[data-theme-resolved="light"] #algowise-theme-menu button:hover{',
+      'background:var(--surface,#dbe3ee)!important;color:var(--text,#0a1220)!important;}',
+      'html[data-theme-resolved="light"] #algowise-theme-menu button[aria-checked="true"]{',
+      'color:var(--accent,#1d4ed8)!important;}',
+      'html[data-theme-resolved="dark"] #algowise-theme-menu{',
+      'background:var(--card,#1a2332)!important;color:var(--text,#e7ecf3)!important;',
+      'border-color:var(--border,#243044)!important;}',
+      'html[data-theme-resolved="dark"] #algowise-theme-menu button{color:var(--text,#e7ecf3)!important;}',
+      'html[data-theme-resolved="dark"] #algowise-theme-menu button:hover{background:var(--surface,#0b1220)!important;}',
+
+      /* Light boxes / panels (hardcoded dark leftovers) */
+      'html[data-theme-resolved="light"] .charts figure,',
+      'html[data-theme-resolved="light"] .lev-chart-card,',
+      'html[data-theme-resolved="light"] .allfund-toolbar,',
+      'html[data-theme-resolved="light"] .chart-tip,',
+      'html[data-theme-resolved="light"] .track-panel,',
+      'html[data-theme-resolved="light"] .track-grid .track-panel,',
+      'html[data-theme-resolved="light"] .fund-panel,',
+      'html[data-theme-resolved="light"] .stat-box,',
+      'html[data-theme-resolved="light"] .box{',
+      'background:var(--card,#fbfcfe)!important;border-color:var(--border,#b8c4d6)!important;',
+      'box-shadow:var(--shadow)!important;color:var(--text,#0a1220)!important;}',
+      'html[data-theme-resolved="light"] table.dash th{background:var(--header-bg,#d5dee9)!important;color:var(--text,#0a1220)!important;}',
+      'html[data-theme-resolved="light"] table.dash tr:hover td{background:var(--surface,#dbe3ee)!important;}',
+      'html[data-theme-resolved="light"] table.dash td.sep,html[data-theme-resolved="light"] table.dash th.sep{background:var(--inset,#dfe6f0)!important;}',
+      'html[data-theme-resolved="light"] .fund-tabs button.active{background:var(--surface,#dbe3ee)!important;color:var(--text,#0a1220)!important;border-color:var(--accent,#1d4ed8)!important;}',
+      'html[data-theme-resolved="light"] .fund-tabs button{background:var(--panel,#f0f4fa)!important;color:var(--text,#0a1220)!important;border-color:var(--border,#b8c4d6)!important;}',
+      'html[data-theme-resolved="light"] .badge{background:var(--chip-bg,#d0dcf0)!important;color:var(--text,#0a1220)!important;border-color:var(--border,#b8c4d6)!important;}',
+      'html[data-theme-resolved="light"] .tag,html[data-theme-resolved="light"] .status.cancelled{background:var(--chip-bg,#d0dcf0)!important;color:var(--muted,#3d4f66)!important;}',
+      'html[data-theme-resolved="light"] .chart svg,html[data-theme-resolved="light"] code{background:var(--inset,#dfe6f0)!important;border-color:var(--border-soft,#c5d0e0)!important;color:var(--text,#0a1220)!important;}',
+      'html[data-theme-resolved="light"] .period-bar,html[data-theme-resolved="light"] .toolbar{background:var(--panel,#f0f4fa)!important;border-color:var(--border,#b8c4d6)!important;}',
+
+      /* Theme chrome — subtle elevation, not muddy blobs */
+      '#algowise-theme-root{position:fixed;top:12px;right:12px;z-index:99999;font-family:ui-sans-serif,system-ui,-apple-system,sans-serif;}',
+      '#algowise-theme-btn{width:38px;height:38px;border-radius:11px;border:1px solid var(--border,#243044);background:var(--card,#1a2332);color:var(--text,#e7ecf3);',
+      'display:inline-flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:var(--shadow-md);padding:0;}',
+      '#algowise-theme-btn:hover{border-color:var(--accent,#3d8bfd);}',
+      '#algowise-theme-menu{display:none;position:absolute;right:0;top:44px;min-width:132px;background:var(--card,#1a2332);border:1px solid var(--border,#243044);',
+      'border-radius:12px;padding:6px;box-shadow:var(--shadow-lg);}',
+      '#algowise-theme-root.open #algowise-theme-menu{display:block;}',
+      '#algowise-theme-menu button{display:flex;width:100%;align-items:center;gap:8px;border:0;background:transparent;color:var(--text,#e7ecf3);',
+      'padding:8px 10px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600;text-align:left;}',
+      '#algowise-theme-menu button:hover{background:var(--surface,#0b1220);}',
+      '#algowise-theme-menu button[aria-checked="true"]{color:var(--accent,#3d8bfd);}',
+      '@media (max-width:640px){#algowise-theme-root{top:8px;right:8px;}#algowise-theme-btn{width:34px;height:34px;}}'
+    ].join("");
+    document.head.appendChild(css);
+  }
+  function ensureUi() {
+    if (document.getElementById("algowise-theme-root")) return;
+    var root = document.createElement("div");
+    root.id = "algowise-theme-root";
+    root.innerHTML =
+      '<button type="button" id="algowise-theme-btn" aria-haspopup="menu" aria-expanded="false"></button>' +
+      '<div id="algowise-theme-menu" role="menu">' +
+      '<button type="button" role="menuitemradio" data-mode="light" aria-checked="false">' + ICONS.light + " Light</button>" +
+      '<button type="button" role="menuitemradio" data-mode="dark" aria-checked="false">' + ICONS.dark + " Dark</button>" +
+      '<button type="button" role="menuitemradio" data-mode="system" aria-checked="false">' + ICONS.system + " System</button>" +
+      "</div>";
+    document.body.appendChild(root);
+    var btn = document.getElementById("algowise-theme-btn");
+    var menu = document.getElementById("algowise-theme-menu");
+    btn.addEventListener("click", function (e) {
+      e.stopPropagation();
+      var open = root.classList.toggle("open");
+      btn.setAttribute("aria-expanded", open ? "true" : "false");
+    });
+    menu.addEventListener("click", function (e) {
+      var t = e.target.closest("[data-mode]");
+      if (!t) return;
+      apply(t.getAttribute("data-mode"));
+      root.classList.remove("open");
+      btn.setAttribute("aria-expanded", "false");
+    });
+    document.addEventListener("click", function () {
+      root.classList.remove("open");
+      btn.setAttribute("aria-expanded", "false");
+    });
+    btn.addEventListener("contextmenu", function (e) {
+      e.preventDefault();
+      apply(nextMode(readMode()));
+    });
+  }
+  function boot() {
+    ensureCss();
+    ensureUi();
+    apply(readMode());
+  }
+  try {
+    window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", function () {
+      if (readMode() === "system") apply("system");
+    });
+  } catch (e) {}
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", boot);
+  } else {
+    boot();
+  }
+})();
+
+</script>
+</body>
+</html>
